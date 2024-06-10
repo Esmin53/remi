@@ -15,10 +15,14 @@ const config = {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        "xs": "385px",
       },
     },
     extend: {
       colors: {
+        primaryblue: "#829ab1",
+        paleblue: "#f0f4f8",
+        peach: "#ff6f61",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -67,10 +71,15 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        'slide-in': {
+          '0%': { left: '-100%' },
+          '100%': { left: '0%' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        'slide-in': 'slide-in 1s forwards',
       },
     },
   },
