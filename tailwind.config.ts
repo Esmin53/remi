@@ -21,6 +21,7 @@ const config = {
     extend: {
       colors: {
         primaryblue: "#829ab1",
+        lightblue: "#bcccdc",
         paleblue: "#f0f4f8",
         peach: "#ff6f61",
         border: "hsl(var(--border))",
