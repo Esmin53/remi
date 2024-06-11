@@ -75,4 +75,26 @@
     }
   }
 
-  
+  .poker-table {
+    width: 850px;
+    height: 600px;
+    background-image: url('https://img.freepik.com/free-vector/flat-design-poker-table-background_23-2151016825.jpg?t=st=1718056218~exp=1718059818~hmac=70698df197cde86f09122a4831e87b694589fac11010798ef17a847322f043d1&w=1060'); /* Replace 'poker-table.jpg' with your image path */
+    background-size: cover;
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    transform: perspective(1000px) rotateX(37.5deg); 
+  }
+
+  .poker-table::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+  }
