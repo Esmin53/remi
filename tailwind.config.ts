@@ -19,6 +19,9 @@ const config = {
       },
     },
     extend: {
+      boxShadow: {
+        'red-glow': '0 0 5px rgba(245, 101, 101, 0.4)'
+      },
       colors: {
         primaryblue: "#829ab1",
         lightblue: "#bcccdc",

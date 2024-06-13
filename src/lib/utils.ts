@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { CARDS } from "./cards";
+import { CARDS, Card } from "./cards";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,7 +22,7 @@ export function shuffle() {
 }
 
 export function getCards(cardIds: number[]) {
-  let cards = CARDS.filter(obj => cardIds.includes(obj.id))
+  let cards = cardIds.map(id => CARDS.find(obj => obj.id === id));
 
-  return cards
+  return cards as Card[]
 }
