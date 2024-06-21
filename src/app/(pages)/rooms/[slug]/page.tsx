@@ -6,7 +6,6 @@ import Table from "@/components/Table"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { Card } from "@/lib/cards"
 import { getCards } from "@/lib/utils"
-import { Recycle, SortAsc } from "lucide-react"
 import { useEffect, useState } from "react"
 
 
@@ -16,7 +15,6 @@ const page = () => {
     const [selectedCards, setSelectedCards] = useState<Card[]>([])
     const [startingDeck, setStartingDeck] = useState<Card[]>([])
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
-    const [sortingMode, setSortingMode] = useState<boolean >(true)
     const [cards, setCards] = useState<Card[] >([])
 
     const startGame = async () => {
@@ -35,10 +33,8 @@ const page = () => {
 
     const selectCard = (card: Card) => {
         if (selectedCards.find(item => item.id === card.id)) {
-            // If the card is already selected, deselect it
             setSelectedCards(prevSelected => prevSelected.filter(item => item.id !== card.id));
         } else {
-            // Otherwise, select the card
             setSelectedCards(prevSelected => [...prevSelected, card]);
         }
     };

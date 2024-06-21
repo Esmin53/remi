@@ -1,6 +1,8 @@
 "use client"
 
 import { User2 } from "lucide-react"
+import JoinRoom from "./JoinRoom"
+import { useState } from "react"
 
 const SideBar = () => {
 
@@ -12,15 +14,7 @@ const SideBar = () => {
                 </div>
                 <h2 className="text-2xl font-bold">Esmin53</h2>
             </div>
-            <div className="w-full flex flex-col gap-2">
-                <p className="text-xl font-medium">Find a new room</p>
-                <div className="h-0.5 w-3/4 bg-lightblue rounded-lg" />
-                <input className="w-full h-10 px-2 rounded-sm bg-paleblue border-none outline-none text-gray-900 shadow-sm"
-                placeholder="Room key" />
-                <button className="w-full h-10 bg-peach hover:bg-peach/90 shadow rounded-sm font-medium flex items-center justify-center">
-                Join room
-            </button>
-            </div>
+            <JoinRoom />
             <div className="flex-1 bg-lightblue rounded-sm shadow-sm">
 
             </div>

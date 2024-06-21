@@ -1,4 +1,5 @@
 import { User2 } from "lucide-react";
+import Players from "./Players";
 
 
 const GameMenu = () => {
@@ -11,12 +12,7 @@ const GameMenu = () => {
                 </div>
                 <h2 className="text-2xl font-bold">Esmin53</h2>
             </div>
-            <div className="w-full flex p-2 gap-2 bg-lightblue rounded shadow-sm items-center justify-evenly">
-                <div className="w-14 h-14 rounded-full bg-paleblue" />
-                <div className="w-14 h-14 rounded-full bg-paleblue" />
-                <div className="w-14 h-14 rounded-full bg-paleblue" />
-                <div className="w-14 h-14 rounded-full bg-paleblue" />
-            </div>
+            <Players />
             <div className="flex-1 bg-lightblue rounded shadow p-2 flex gap-1">
 
                 <input type="text" className="w-full h-10 border-none bg-paleblue mt-auto rounded-sm outline-none px-2 text-gray-900"
