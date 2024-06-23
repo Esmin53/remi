@@ -6,6 +6,7 @@ import Table from "@/components/Table"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { Card } from "@/lib/cards"
 import { getCards } from "@/lib/utils"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 
@@ -16,6 +17,9 @@ const page = () => {
     const [startingDeck, setStartingDeck] = useState<Card[]>([])
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
+
+    const key = usePathname().split("/")[2]
+    const router = useRouter()
 
     const startGame = async () => {
         try {
@@ -66,6 +70,24 @@ const page = () => {
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))  
     }
 
+    const leaveTable = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players`, {
+                method: "DELETE"
+            });
+
+            const data = await response.json()
+
+            if(data.ok && response.status === 200) {
+                router.push("/");
+            }
+
+            console.log("Leave table data ---> ", data)
+        } catch (error) {
+            
+        }
+    }
+
     useEffect(() => {
         startGame()
     }, [])
@@ -103,7 +125,8 @@ const page = () => {
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : <CardBack />}
-                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center">
+                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-2">
+                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
                 </div>
             </div>

@@ -1,6 +1,8 @@
 import { rooms, users } from "@/db/schema"
 import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
+import { pusherServer } from "@/lib/pusher"
+import { toPusherKey } from "@/lib/utils"
 import { RoomCredentialsValidator } from "@/lib/validators/room"
 import { eq } from "drizzle-orm"
 import { getServerSession } from "next-auth"
@@ -53,6 +55,12 @@ export const PUT = async (req: Request) => {
         }
 
         await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name))
+
+        await pusherServer.trigger(
+            toPusherKey(`players`), 
+            'incoming-player', 
+            [{id: 2, username: "test"}]
+        )
 
         return new NextResponse(JSON.stringify({ok: true, key: room[0].key}), { status: 200})
     } catch (error) {

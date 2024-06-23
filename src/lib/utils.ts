@@ -26,3 +26,8 @@ export function getCards(cardIds: number[]) {
 
   return cards as Card[]
 }
+
+export function toPusherKey(key: string) {
+  
+  return key.replace(/:/g, '__')
+}

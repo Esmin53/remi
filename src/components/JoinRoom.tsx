@@ -20,7 +20,7 @@ const JoinRoom = () => {
 
     const onSubmit: SubmitHandler<TJoinRoomValidator> = async ({ key }) => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players`, {
                 method: 'PUT',
                 body: JSON.stringify({key})
             })
