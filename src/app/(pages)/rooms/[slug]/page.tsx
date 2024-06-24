@@ -117,7 +117,7 @@ const page = () => {
 
     return (
         <div className="flex-1 flex gap-2">
-            <div className="flex-1 flex items-center flex-col pt-6 relative">
+            <div className="flex-1 flex items-center flex-col pt-6 relative justify-evenly">
                 <Table drawCard={drawAcard} discardCard={discardCard}
                 lastDiscartedCard={lastDiscartedCard}
                 />
@@ -125,9 +125,11 @@ const page = () => {
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : <CardBack />}
-                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-2">
+                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
+                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawAcard()}>Draw</p>
+                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
                 </div>
             </div>
             <GameMenu />

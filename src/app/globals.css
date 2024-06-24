@@ -76,9 +76,8 @@
   }
 
   .poker-table {
-    width: 850px;
-    height: 600px;
-    background-image: url('https://img.freepik.com/free-vector/flat-design-poker-table-background_23-2151016825.jpg?t=st=1718056218~exp=1718059818~hmac=70698df197cde86f09122a4831e87b694589fac11010798ef17a847322f043d1&w=1060'); /* Replace 'poker-table.jpg' with your image path */
+    aspect-ratio: 16 / 10;
+
     background-size: cover;
     border: 2px solid #000;
     border-radius: 10px;
