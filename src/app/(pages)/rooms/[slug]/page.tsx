@@ -1,11 +1,11 @@
 "use client"
 
-import CardBack from "@/components/CardBack"
 import MyHand from "@/components/MyHand"
 import Table from "@/components/Table"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { Card } from "@/lib/cards"
-import { getCards } from "@/lib/utils"
+import { pusherClient } from "@/lib/pusher"
+import { getCards, toPusherKey } from "@/lib/utils"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -23,13 +23,32 @@ const page = () => {
 
     const startGame = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`)
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`, {
+                method: "POST",
+                body: JSON.stringify({
+                    key
+                })
+            })
 
             const data = await response.json()
 
-            setCardIds(data.playerOne)
-            setStartingDeck(getCards(data.startingDeck))
-            setCards(getCards(data.playerOne))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getMyCards = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/hand`)
+
+            const data = await response.json()
+
+
+            await setCardIds(data.cards)
+            await setCards(getCards(data.cards))
+            console.log(cards)
+            console.log(cardIds)
+
         } catch (error) {
             console.log(error)
         }
@@ -52,8 +71,6 @@ const page = () => {
 
         if(typeof newCard !== 'undefined')
         setCards([...cards, newCard])
-            
-        
     }
 
     const discardCard = () => {
@@ -88,10 +105,6 @@ const page = () => {
         }
     }
 
-    useEffect(() => {
-        startGame()
-    }, [])
-
     const swapCards = () => {
         if (selectedCards.length > 2 || selectedCards.length < 1) {
              return
@@ -112,19 +125,40 @@ const page = () => {
 
         setCards(newCards);
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))
-
     }
+
+    useEffect(() => {
+        pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
+        
+            const turnHandler = (data: {startingDeck: number[], currentTurn: string}) => {
+                setStartingDeck(getCards(data.startingDeck))
+            }
+    
+        pusherClient.bind(`game-turn`, turnHandler)
+
+        return () => {
+            pusherClient.unsubscribe(toPusherKey(`game:${key}:turn`))
+            pusherClient.unbind('game-turn', turnHandler)
+        }
+    }, [])
+
+    console.log(startingDeck)
 
     return (
         <div className="flex-1 flex gap-2">
             <div className="flex-1 flex items-center flex-col pt-6 relative justify-evenly">
+                <div className="flex-1 w-full flex justify-center items-center relative">
+                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full top-2"></div>
+                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full right-8"></div>
+                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full left-8"></div>
                 <Table drawCard={drawAcard} discardCard={discardCard}
-                lastDiscartedCard={lastDiscartedCard}
-                />
+                lastDiscartedCard={lastDiscartedCard} startGame={startGame}
+                deckLength={startingDeck.length} getCards={getMyCards} handLength={cards.length}/>
+                </div>
                 {cardIds?.length ? <MyHand 
                     selectedCards={selectedCards}
                     cards={cards} 
-                    selectCard={selectCard}/> : <CardBack />}
+                    selectCard={selectCard}/> : null}
                 <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>

@@ -6,7 +6,7 @@ export default {
   dialect: 'postgresql',
   out: "./drizzle",
   dbCredentials: {
-    url: "postgresql://neondb_owner:21FeuqHLMDzE@ep-small-band-a2ttzgl5.eu-central-1.aws.neon.tech/neondb?sslmode=require",
+    url: process.env.DRIZZLE_DATABASE_URL,
   },
   migration: {
     table: "migrations",

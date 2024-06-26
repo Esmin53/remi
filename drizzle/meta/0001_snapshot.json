@@ -1,9 +1,90 @@
 {
-  "id": "5cd3d5eb-2a31-43d0-8cae-a55809298ef6",
-  "prevId": "7acebf28-cf16-45a5-841a-87d81dc3fb0b",
+  "id": "18616390-f644-4418-ae3f-edc9fa10157a",
+  "prevId": "da5efbc9-566f-436b-ac8e-bb34e9d2489e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.game": {
+      "name": "game",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deck": {
+          "name": "deck",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "turn_order": {
+          "name": "turn_order",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_turn": {
+          "name": "current_turn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "room_key": {
+          "name": "room_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "game_status": {
+          "name": "game_status",
+          "type": "game_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.hand": {
+      "name": "hand",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cards": {
+          "name": "cards",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "game_id": {
+          "name": "game_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "player": {
+          "name": "player",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.room": {
       "name": "room",
       "schema": "",
@@ -21,8 +102,8 @@
           "notNull": false,
           "default": false
         },
-        "author_name": {
-          "name": "author_name",
+        "owner_name": {
+          "name": "owner_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -68,6 +149,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "room_key": {
+          "name": "room_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "game_id": {
+          "name": "game_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -84,7 +177,17 @@
       }
     }
   },
-  "enums": {},
+  "enums": {
+    "public.game_status": {
+      "name": "game_status",
+      "schema": "public",
+      "values": [
+        "IN_PROGRESS",
+        "FINISHED",
+        "INTERRUPTED"
+      ]
+    }
+  },
   "schemas": {},
   "_meta": {
     "columns": {},

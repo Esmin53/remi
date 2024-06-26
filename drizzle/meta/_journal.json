@@ -5,36 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1718015487541,
-      "tag": "0000_init_db",
+      "when": 1719336596686,
+      "tag": "0000_lying_wolverine",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1718047467423,
-      "tag": "0001_little_ironclad",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1718975174105,
-      "tag": "0002_warm_prowler",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1718978178589,
-      "tag": "0003_mean_princess_powerful",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1718979575979,
-      "tag": "0004_bent_warstar",
+      "when": 1719407604421,
+      "tag": "0001_warm_dorian_gray",
       "breakpoints": true
     }
   ]

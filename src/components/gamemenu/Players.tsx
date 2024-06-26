@@ -16,8 +16,6 @@ const Players = () => {
         pusherClient.subscribe(toPusherKey(`players:`))
         
             const messagesHandler = (updatedPlayers: {id: string, username: string}[]) => {
-                //@ts-ignore
-                console.log(updatedPlayers)
                 setPlayers(updatedPlayers)
             }
     
@@ -40,8 +38,6 @@ const Players = () => {
             
         }
     }
-
-    console.log(players)
 
     useEffect(() => {
         getPlayers()
