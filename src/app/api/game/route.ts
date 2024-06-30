@@ -27,6 +27,8 @@ export const POST = async (req: Request, res: Response) => {
             username: users.username,
         }).from(rooms).where(eq(rooms.key, body.key)).rightJoin(users, eq(rooms.key, users.roomKey));
 
+        await db.update(games).set({ gameStatus: "FINISHED"}).where(eq(games.roomKey, body.key))
+
         const [game] = await db.insert(games).values({
             deck: [],
             roomKey: body.key,
@@ -52,7 +54,9 @@ export const POST = async (req: Request, res: Response) => {
             'game-turn', 
             {
                 startingDeck,
-                currentTurn: players[0].username
+                currentTurn: players[0].username,
+                gameStatus: "IN_PROGRESS",
+                gameId: game.id
             }
         )
 

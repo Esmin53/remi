@@ -18,8 +18,6 @@ export const GET = async (req: Request, res: Response) => {
 
         const players = await db.select().from(users).where(eq(users.roomKey, key))
 
-        console.log("PLAYERS", players)
-
         return new NextResponse(JSON.stringify({players}), {status: 200})
     } catch (error) {
         

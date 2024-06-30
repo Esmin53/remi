@@ -20,7 +20,9 @@ export const userRelations = relations(users, ({ one, many }) => ({
 export const rooms = pgTable("room", {
     key: text("key").notNull().primaryKey(),
     allowRandom: boolean("allow_random").default(false),
-    ownerName: text("owner_name")
+    ownerName: text("owner_name"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),  
 })
 
 export const roomRelations = relations(rooms, ({ one, many }) => ({

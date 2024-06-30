@@ -1,25 +1,67 @@
 "use client"
 
+import CardBack from "@/components/CardBack"
+import CardBundle from "@/components/CardBundle"
 import MyHand from "@/components/MyHand"
 import Table from "@/components/Table"
+import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
 import { getCards, toPusherKey } from "@/lib/utils"
+import { useSession } from "next-auth/react"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-
 const page = () => {
+
+    const session = useSession()
 
     const [cardIds, setCardIds] = useState<number[] >([])
     const [selectedCards, setSelectedCards] = useState<Card[]>([])
     const [startingDeck, setStartingDeck] = useState<Card[]>([])
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [roomData, setRoomData] = useState<{
+        owner: string
+        gameId: string | null
+        gameStatus: string | null
+        currentTurn: string | null
+    }>({
+        owner: "",
+        gameId: null,
+        gameStatus: null ,
+        currentTurn: null
+    })
 
     const key = usePathname().split("/")[2]
     const router = useRouter()
+
+    const getRoomInfo = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}`)
+
+            const data = await response.json()
+            
+            setRoomData({
+                owner: data.owner,
+                gameId: data.gameId || null,
+                gameStatus: data.gameStatus || null,
+                currentTurn: data.currentTurn || null
+            })
+
+            if(data.gameStatus === "IN_PROGRESS") setStartingDeck(getCards(data.deck))
+
+            setIsLoading(false)
+        } catch (error) {
+            console.log(error)
+            setIsLoading(false)
+        }
+    }
+
+    console.log("Room Data: ", roomData)
 
     const startGame = async () => {
         try {
@@ -46,8 +88,6 @@ const page = () => {
 
             await setCardIds(data.cards)
             await setCards(getCards(data.cards))
-            console.log(cards)
-            console.log(cardIds)
 
         } catch (error) {
             console.log(error)
@@ -62,15 +102,21 @@ const page = () => {
         }
     };
 
-    const drawAcard = () => {
+    const drawCard = () => {
+        console.log("Click")
         if(cards.length >= 15) {
+            console.log("Problem")
             return
         }
 
         let newCard = startingDeck.pop()
 
+        console.log("New Card", newCard)
+
         if(typeof newCard !== 'undefined')
         setCards([...cards, newCard])
+
+        console.log(cards)
     }
 
     const discardCard = () => {
@@ -130,7 +176,22 @@ const page = () => {
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
-            const turnHandler = (data: {startingDeck: number[], currentTurn: string}) => {
+            const turnHandler = (data: {startingDeck: number[], currentTurn: string, gameStatus?: string, gameId?: string}) => {
+                if(data.gameStatus) {
+                    setRoomData(prev => ({
+                        ...prev,
+                        gameStatus: data.gameStatus!
+                    }))
+                }
+
+                if(data.gameId) {
+                    setRoomData(prev => ({
+                        ...prev,
+                        gameId: data.gameId!
+                    }))
+                }
+                
+
                 setStartingDeck(getCards(data.startingDeck))
             }
     
@@ -142,7 +203,16 @@ const page = () => {
         }
     }, [])
 
-    console.log(startingDeck)
+    useEffect(() => {
+        setIsLoading(true)
+        getRoomInfo()
+    }, [])
+
+    if(isLoading || session.status === "loading") {
+        return <div className="w-screen h-screen flex items-center justify-center">
+            <CardBack className="animate-pulse xl:w-32" />
+        </div>
+    }
 
     return (
         <div className="flex-1 flex gap-2">
@@ -151,9 +221,28 @@ const page = () => {
                     <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full top-2"></div>
                     <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full right-8"></div>
                     <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full left-8"></div>
-                <Table drawCard={drawAcard} discardCard={discardCard}
-                lastDiscartedCard={lastDiscartedCard} startGame={startGame}
-                deckLength={startingDeck.length} getCards={getMyCards} handLength={cards.length}/>
+                    {roomData?.gameStatus === 'IN_PROGRESS' ? <TableOptions>
+                    {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
+                        Start Game
+                    </button> : <>
+                    <div className="w-14 sm:w-16 md:w-24 lg:w-28 h-24 sm:h-32 md:h-40 lg:h-44 shadow border-2 border-gray-700 rounded-xl cursor-pointer relative" onClick={() => discardCard()}>
+                        {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
+                    </div>
+                    <div onClick={() => drawCard()}>
+                        <CardBack />
+                    </div>
+                    </>}
+            
+                    {roomData.gameStatus === "IN_PROGRESS"  && cards.length === 0 && <div className="absolute bottom-2" 
+                    onClick={() => getMyCards()}>
+                        <CardBundle />
+                    </div>}
+                </TableOptions> : <TableOptions>
+                        {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
+                        onClick={() => startGame()}>
+                            Start a new game
+                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
+                    </TableOptions>}
                 </div>
                 {cardIds?.length ? <MyHand 
                     selectedCards={selectedCards}
@@ -162,7 +251,7 @@ const page = () => {
                 <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawAcard()}>Draw</p>
+                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
                 </div>
             </div>

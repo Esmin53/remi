@@ -13,7 +13,7 @@ export const POST = async (req: Request, res: Response) => {
     try {
         const session = await getServerSession(authOptions)
 
-        if(!session || !session.user) {
+        if(!session || !session.user?.name) {
             return new NextResponse(JSON.stringify({ ok: false}), { status: 401})
         }
 
@@ -29,8 +29,11 @@ export const POST = async (req: Request, res: Response) => {
 
         const newRoom = await db.insert(rooms).values({
             key: key,
-            allowRandom: allowRandom
+            allowRandom: allowRandom,
+            ownerName: session.user.name,
         }).returning({key: rooms.key})
+
+        await db.update(users).set({roomKey: newRoom[0].key}).where(eq(users.username, session.user.name))
 
         return new NextResponse(JSON.stringify({ok: true, newRoom}), { status: 200})
     } catch (error) {
