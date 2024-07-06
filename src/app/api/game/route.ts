@@ -53,7 +53,7 @@ export const POST = async (req: Request, res: Response) => {
             toPusherKey(`game:${body.key}:turn`), 
             'game-turn', 
             {
-                startingDeck,
+                cardToDraw: startingDeck[startingDeck.length - 1],
                 currentTurn: players[0].username,
                 gameStatus: "IN_PROGRESS",
                 gameId: game.id

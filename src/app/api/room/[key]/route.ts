@@ -26,7 +26,23 @@ export const GET = async (req: Request, res: Response) => {
             eq(rooms.key, key),
         )).orderBy(rooms.createdAt)
 
-        return new NextResponse(JSON.stringify(roomData || null), { status: 200 })
+        let data: {
+            owner: string | null,
+            gameId: number | null,
+            gameStatus: string | null,
+            currentTurn: string | null,
+            deck: number | null
+        } = {
+            owner: roomData.owner,
+            gameId: roomData.gameId,
+            gameStatus: roomData.gameStatus,
+            currentTurn: roomData.currentTurn,
+            deck: null
+        }
+
+        if(roomData.deck) data.deck = roomData.deck[roomData.deck.length - 1]
+
+        return new NextResponse(JSON.stringify(data || null), { status: 200 })
     } catch (error) {
         console.log(error)
         return new NextResponse(JSON.stringify(error), { status: 500 });

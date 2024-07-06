@@ -6,7 +6,7 @@ import MyHand from "@/components/MyHand"
 import Table from "@/components/Table"
 import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
-import { Card } from "@/lib/cards"
+import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
 import { getCards, toPusherKey } from "@/lib/utils"
 import { useSession } from "next-auth/react"
@@ -20,7 +20,7 @@ const page = () => {
 
     const [cardIds, setCardIds] = useState<number[] >([])
     const [selectedCards, setSelectedCards] = useState<Card[]>([])
-    const [startingDeck, setStartingDeck] = useState<Card[]>([])
+    const [cardToDraw, setCardToDraw] = useState<Card | null>(null)
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
     const [isLoading, setIsLoading] = useState(true)
@@ -44,6 +44,8 @@ const page = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}`)
 
             const data = await response.json()
+
+            console.log("DATA _->", data)
             
             setRoomData({
                 owner: data.owner,
@@ -52,7 +54,10 @@ const page = () => {
                 currentTurn: data.currentTurn || null
             })
 
-            if(data.gameStatus === "IN_PROGRESS") setStartingDeck(getCards(data.deck))
+            if(data.gameStatus === "IN_PROGRESS") {
+                let card = CARDS.find(item => item.id === data.deck)
+                setCardToDraw(card!)
+            }
 
             setIsLoading(false)
         } catch (error) {
@@ -61,7 +66,7 @@ const page = () => {
         }
     }
 
-    console.log("Room Data: ", roomData)
+    console.log("Room Data: ", cardToDraw)
 
     const startGame = async () => {
         try {
@@ -109,12 +114,12 @@ const page = () => {
             return
         }
 
-        let newCard = startingDeck.pop()
+        //let newCard = cardToDraw.pop()
 
-        console.log("New Card", newCard)
+        //console.log("New Card", newCard)
 
-        if(typeof newCard !== 'undefined')
-        setCards([...cards, newCard])
+        if(cardToDraw)
+        setCards([...cards, cardToDraw])
 
         console.log(cards)
     }
@@ -127,7 +132,7 @@ const page = () => {
         if(!selectedCards.length || cards.length === 14) {
             return
         }
-        startingDeck.unshift(selectedCards[0])
+        //cardToDraw.unshift(selectedCards[0])
         setLastDiscartedCard(selectedCards[0])
         setCards(cards.filter(item => item.id !== selectedCards[0].id))
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))  
@@ -176,7 +181,7 @@ const page = () => {
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
-            const turnHandler = (data: {startingDeck: number[], currentTurn: string, gameStatus?: string, gameId?: string}) => {
+            const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, gameId?: string}) => {
                 if(data.gameStatus) {
                     setRoomData(prev => ({
                         ...prev,
@@ -191,8 +196,10 @@ const page = () => {
                     }))
                 }
                 
-
-                setStartingDeck(getCards(data.startingDeck))
+                if(data.gameStatus === "IN_PROGRESS") {
+                    let card = CARDS.find(item => item.id === data.cardToDraw)
+                    setCardToDraw(card!)
+                }
             }
     
         pusherClient.bind(`game-turn`, turnHandler)
