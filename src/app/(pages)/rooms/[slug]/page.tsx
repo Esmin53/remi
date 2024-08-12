@@ -24,6 +24,8 @@ const page = () => {
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
     const [isLoading, setIsLoading] = useState(true)
+    const [hasDiscarted, setHasDiscarted] = useState(true)
+    const [hasDrew, setHasDrew] = useState(false)
     const [roomData, setRoomData] = useState<{
         owner: string
         gameId: string | null
@@ -45,7 +47,6 @@ const page = () => {
 
             const data = await response.json()
 
-            console.log("DATA _->", data)
             
             setRoomData({
                 owner: data.owner,
@@ -66,7 +67,6 @@ const page = () => {
         }
     }
 
-    console.log("Room Data: ", cardToDraw)
 
     const startGame = async () => {
         try {
@@ -79,6 +79,7 @@ const page = () => {
 
             const data = await response.json()
 
+            console.log("Start Game Data: ", data)
         } catch (error) {
             console.log(error)
         }
@@ -90,6 +91,11 @@ const page = () => {
 
             const data = await response.json()
 
+
+            if(data.discardedCard) {
+                let card = CARDS.find(item => item.id === data.discardedCard)
+                setLastDiscartedCard(card!)
+            }
 
             await setCardIds(data.cards)
             await setCards(getCards(data.cards))
@@ -108,11 +114,19 @@ const page = () => {
     };
 
     const drawCard = () => {
-        console.log("Click")
+        if(roomData.currentTurn !== session.data?.user?.name) return
+        
+        if(hasDrew) {
+            console.log("Already drew card this turn!")
+            return
+        }
+        
         if(cards.length >= 15) {
             console.log("Problem")
             return
         }
+
+        setHasDrew(true)
 
         //let newCard = cardToDraw.pop()
 
@@ -121,10 +135,14 @@ const page = () => {
         if(cardToDraw)
         setCards([...cards, cardToDraw])
 
-        console.log(cards)
     }
 
-    const discardCard = () => {
+    const discardCard = async () => {
+        if(hasDiscarted) {
+            console.log("Ne moze postar")
+            return
+        }
+
         if(selectedCards.length > 1) {
             return
         }
@@ -132,10 +150,35 @@ const page = () => {
         if(!selectedCards.length || cards.length === 14) {
             return
         }
+
+        setHasDiscarted(true)
         //cardToDraw.unshift(selectedCards[0])
         setLastDiscartedCard(selectedCards[0])
         setCards(cards.filter(item => item.id !== selectedCards[0].id))
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))  
+
+
+        const filteredIds = cards
+        .filter((item) => item.id !== selectedCards[0].id)
+        .map((item) => item.id);
+        
+        try { 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    id: roomData.gameId,
+                    discartedCard: selectedCards[0].id,
+                    newHand:filteredIds
+                })
+            })
+    
+            const data = await response.json()
+
+            console.log("Turn Card Data: ", data)
+
+        } catch (error) {
+            
+        }
     }
 
     const leaveTable = async () => {
@@ -181,8 +224,12 @@ const page = () => {
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
-            const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, gameId?: string}) => {
+            const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, 
+                gameId?: string, discartedCard?: number}) => {
+                
+                console.log("Called")
                 if(data.gameStatus) {
+                    console.log(data.gameStatus)
                     setRoomData(prev => ({
                         ...prev,
                         gameStatus: data.gameStatus!
@@ -195,10 +242,20 @@ const page = () => {
                         gameId: data.gameId!
                     }))
                 }
-                
+
+
                 if(data.gameStatus === "IN_PROGRESS") {
                     let card = CARDS.find(item => item.id === data.cardToDraw)
                     setCardToDraw(card!)
+                    setRoomData(prev => ({
+                        ...prev,
+                        currentTurn: data.currentTurn
+                    }))
+                }
+
+                if(data.discartedCard) {
+                    let card = CARDS.find(item => item.id === data.discartedCard)
+                    setLastDiscartedCard(card!)
                 }
             }
     
@@ -214,6 +271,13 @@ const page = () => {
         setIsLoading(true)
         getRoomInfo()
     }, [])
+
+    useEffect(() => {
+        if(roomData.currentTurn === session.data?.user?.name) {
+            setHasDiscarted(false)
+            setHasDrew(false)
+        }
+    }, [roomData.currentTurn])
 
     if(isLoading || session.status === "loading") {
         return <div className="w-screen h-screen flex items-center justify-center">

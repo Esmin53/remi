@@ -1,8 +1,10 @@
 import { games, hand, rooms, users } from "@/db/schema"
+import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
 import { shuffle, toPusherKey } from "@/lib/utils"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
+import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 
 export const GET = (req: Request, res: Response) => {
@@ -32,14 +34,14 @@ export const POST = async (req: Request, res: Response) => {
         const [game] = await db.insert(games).values({
             deck: [],
             roomKey: body.key,
-            gameStatus: "IN_PROGRESS"
+            gameStatus: "IN_PROGRESS",
         }).returning({ id: games.id })
 
         for(let i in players) {
             await db.insert(hand).values({
                 gameId: game.id,
                 player: players[i].username,
-                cards: startingDeck.splice(0, 14)
+                cards: startingDeck.splice(0, parseInt(i) === 0 ? 15 : 14)
             })
         }
 
@@ -61,6 +63,60 @@ export const POST = async (req: Request, res: Response) => {
         )
 
         return new NextResponse(JSON.stringify({ok: true}), { status: 200 })
+    } catch (error) {
+        console.log(error)
+        return new NextResponse(JSON.stringify({error}), { status: 500 })
+    }
+}
+
+export const PUT = async (req: Request, res: Response) => {
+    try {
+        const session = await getServerSession(authOptions)
+
+        if(!session?.user || typeof session.user.name !== 'string') {
+            return new NextResponse(JSON.stringify({ok: false}), { status: 401 });
+        }
+
+        const body = await req.json();
+
+        const [game] = await db.select().from(games).where(eq(games.id, body.id))
+
+        let tempDeck = game.deck?.slice(0, -1) || [];
+
+        tempDeck?.unshift(body.discartedCard)
+
+        let currentPlayerIndex = game.turnOrder?.indexOf(game.currentTurn!) || 0
+
+        //@ts-ignore
+        let nextPlayer = game.turnOrder[currentPlayerIndex + 1] || game.turnOrder[0]
+        let currentPlayer = game.currentTurn
+
+
+            await db.update(games).set({
+                deck: tempDeck,
+                currentTurn: nextPlayer
+            }).where(eq(games.id, body.id))
+
+            await db.update(hand).set({
+                cards: body.newHand
+            }).where(and(
+                eq(hand.gameId, body.id),
+                eq(hand.player, currentPlayer!)
+            ))
+
+        await pusherServer.trigger(
+            toPusherKey(`game:${game.roomKey}:turn`), 
+            'game-turn', 
+            {
+                cardToDraw: tempDeck[tempDeck.length - 1],
+                discartedCard: tempDeck[0],
+                currentTurn: nextPlayer,
+                gameStatus: "IN_PROGRESS",
+            }
+        )
+
+
+        return new NextResponse(JSON.stringify({ok: true}), { status: 200 });
     } catch (error) {
         console.log(error)
         return new NextResponse(JSON.stringify({error}), { status: 500 })

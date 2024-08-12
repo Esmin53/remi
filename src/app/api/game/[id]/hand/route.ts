@@ -18,7 +18,11 @@ export const GET = async (req: Request, res: Response) => {
             return new NextResponse(JSON.stringify("Unauthorized"))
         }
         
-        const [currentGame] = await db.select({ id: games.id}).from(rooms)
+        const [currentGame] = await db.select({ 
+            id: games.id,
+            turnOrder: games.turnOrder,
+            deck: games.deck
+        }).from(rooms)
         .leftJoin(games, eq(rooms.key, games.roomKey)).where(eq(games.gameStatus, "IN_PROGRESS"))
 
         if(!currentGame.id) {
@@ -32,9 +36,19 @@ export const GET = async (req: Request, res: Response) => {
             eq(hand.player, session?.user?.name)
         ))
 
-        console.log("CARDS: ", cards)
+        const [{isDiscardedCard}] = await db.select({
+            isDiscardedCard: hand.cards
+        }).from(hand).where(and(
+            eq(hand.gameId, currentGame.id),
+            eq(hand.player, currentGame.turnOrder![0])
+        ))
 
-        return new NextResponse(JSON.stringify({ ok: true, cards }), { status: 200 })
+        console.log("Is Discarded Card: ", isDiscardedCard?.length)
+        const discardedCard = isDiscardedCard?.length === 15 ? null : currentGame?.deck![0] 
+
+        console.log("CARDS: ", cards, )
+
+        return new NextResponse(JSON.stringify({ ok: true, cards, discardedCard }), { status: 200 })
     } catch (error) {
         
     }
