@@ -21,7 +21,8 @@ export const GET = async (req: Request, res: Response) => {
             gameId: games.id,
             gameStatus: games.gameStatus,
             deck: games.deck,
-            currentTurn: games.currentTurn
+            currentTurn: games.currentTurn,
+            turnOrder: games.turnOrder
         }).from(rooms).fullJoin(games, eq(rooms.key, games.roomKey)).where(and(
             eq(rooms.key, key),
         )).orderBy(rooms.createdAt)
@@ -31,13 +32,15 @@ export const GET = async (req: Request, res: Response) => {
             gameId: number | null,
             gameStatus: string | null,
             currentTurn: string | null,
-            deck: number | null
+            deck: number | null,
+            players: string[]
         } = {
             owner: roomData.owner,
             gameId: roomData.gameId,
             gameStatus: roomData.gameStatus,
             currentTurn: roomData.currentTurn,
-            deck: null
+            deck: null,
+            players: roomData.turnOrder?.filter((player) => player !== session.user?.name) || []
         }
 
         if(roomData.deck) data.deck = roomData.deck[roomData.deck.length - 1]

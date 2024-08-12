@@ -20,7 +20,8 @@ const config = {
     },
     extend: {
       boxShadow: {
-        'red-glow': '0 0 5px rgba(245, 101, 101, 0.4)'
+        'red-glow': '0 0 5px rgba(245, 101, 101, 0.4)',
+        'brighter-red-glow': '0 0 10px rgba(245, 101, 101, 0.8), 0 0 20px rgba(245, 101, 101, 0.6), 0 0 30px rgba(245, 101, 101, 0.5), 0 0 40px rgba(245, 101, 101, 0.4)'
       },
       colors: {
         primaryblue: "#829ab1",

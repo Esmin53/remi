@@ -3,12 +3,13 @@
 import CardBack from "@/components/CardBack"
 import CardBundle from "@/components/CardBundle"
 import MyHand from "@/components/MyHand"
+import PlayerBubble from "@/components/PlayerBubble"
 import Table from "@/components/Table"
 import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
-import { getCards, toPusherKey } from "@/lib/utils"
+import { cn, getCards, toPusherKey } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
@@ -26,6 +27,7 @@ const page = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [hasDiscarted, setHasDiscarted] = useState(true)
     const [hasDrew, setHasDrew] = useState(false)
+    const [players, setPlayers] = useState<string[] >([])
     const [roomData, setRoomData] = useState<{
         owner: string
         gameId: string | null
@@ -54,6 +56,8 @@ const page = () => {
                 gameStatus: data.gameStatus || null,
                 currentTurn: data.currentTurn || null
             })
+
+            setPlayers(data.players)
 
             if(data.gameStatus === "IN_PROGRESS") {
                 let card = CARDS.find(item => item.id === data.deck)
@@ -90,6 +94,7 @@ const page = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/hand`)
 
             const data = await response.json()
+
 
 
             if(data.discardedCard) {
@@ -289,18 +294,23 @@ const page = () => {
         <div className="flex-1 flex gap-2">
             <div className="flex-1 flex items-center flex-col pt-6 relative justify-evenly">
                 <div className="flex-1 w-full flex justify-center items-center relative">
-                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full top-2"></div>
-                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full right-8"></div>
-                    <div className="w-24 h-24 bg-paleblue shadow-sm border-2 border-lightblue absolute rounded-full left-8"></div>
-                    {roomData?.gameStatus === 'IN_PROGRESS' ? <TableOptions>
+                    {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
+
+                        {players[1] ? <PlayerBubble playerName={players[1]} className={`-left-28 top-1/2 -translate-y-1/2`}/> : null}
+                        <PlayerBubble playerName={players[0]} className={`border-red-400 border-2 shadow-red-glow -top-6 left-1/2 -translate-x-1/2`}/>
+                        {players[2] ?<PlayerBubble playerName={players[2]} className={`-right-28 top-1/2 -translate-y-1/2`}/> : null}
+
+                        <TableOptions>
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
                         Start Game
                     </button> : <>
-                    <div className="w-14 sm:w-16 md:w-24 lg:w-28 h-24 sm:h-32 md:h-40 lg:h-44 shadow border-2 border-gray-700 rounded-xl cursor-pointer relative" onClick={() => discardCard()}>
+                    <div className={cn("w-14 sm:w-16 md:w-24 lg:w-28 h-24 sm:h-32 md:h-40 lg:h-44 shadow border-2 border-gray-700 rounded-xl cursor-pointer relative", {
+                        "border-red-500 shadow-red-glow": hasDrew && !hasDiscarted && roomData.currentTurn === session.data?.user?.name
+                    })} onClick={() => discardCard()}>
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>
                     <div onClick={() => drawCard()}>
-                        <CardBack />
+                        <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew ? "border-red-500 shadow-red-glow" : ""}/>
                     </div>
                     </>}
             
@@ -308,7 +318,8 @@ const page = () => {
                     onClick={() => getMyCards()}>
                         <CardBundle />
                     </div>}
-                </TableOptions> : <TableOptions>
+                </TableOptions>
+                    </div> : <TableOptions>
                         {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
                         onClick={() => startGame()}>
                             Start a new game
