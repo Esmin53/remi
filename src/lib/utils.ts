@@ -31,3 +31,31 @@ export function toPusherKey(key: string) {
   
   return key.replace(/:/g, '__')
 }
+
+
+export const allUniqueSymbols = (cards: Card[]) => {
+  const symbols = new Set();
+
+  return cards.every(card => {
+      if (symbols.has(card.symbol)) {
+          return false; 
+      }
+      symbols.add(card.symbol);
+      return true; 
+  });
+};
+
+export function areCardsSequential(cards: Card[]) {
+
+  const sortedCards = cards.slice().sort((a, b) => parseInt(a.value) - parseInt(b.value));
+
+  console.log("Sorted cards -> ", sortedCards);
+
+  for (let i = 1; i < sortedCards.length; i++) {
+      if (parseInt(sortedCards[i].value) !== parseInt(sortedCards[i - 1].value) + 1) {
+          return false; 
+      }
+  }
+
+  return true; 
+}

@@ -76,3 +76,21 @@ export const handRelations = relations(hand, ({ one }) => ({
         references: [users.username]
     }),
 }))
+
+export const meld = pgTable("meld", {
+    id: serial("id").notNull().primaryKey(),
+    cards: integer("cards").array(),
+    gameId: integer("game_id"),
+    player: text("player")
+})  
+
+export const meldRelations = relations(meld, ({ one }) => ({
+    game: one(games, {
+        fields: [meld.gameId],
+        references: [games.id]
+    }),
+    player: one(users, {
+        fields: [meld.player],
+        references: [users.username]
+    }),
+}))

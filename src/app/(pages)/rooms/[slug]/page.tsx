@@ -9,7 +9,7 @@ import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
-import { cn, getCards, toPusherKey } from "@/lib/utils"
+import { allUniqueSymbols, areCardsSequential, cn, getCards, toPusherKey } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
@@ -226,6 +226,63 @@ const page = () => {
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))
     }
 
+    const meldCards = async () => {
+        console.log("SelectedCards -> ", selectedCards)
+        let cardIds = selectedCards.map((item) => item.id);
+        if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
+            if(areCardsSequential(selectedCards)) {
+                try {
+                
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/meld`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            cardIds,
+                            gameId: roomData.gameId
+                        })
+                    })
+    
+                    const data = await response.json()
+    
+                    const filteredCards = cards?.filter(card => !cardIds.includes(card.id))
+                    setCards(filteredCards)
+                    setSelectedCards([])
+    
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                return
+            }
+
+            
+
+        } else if(selectedCards.every((card) => card.value === selectedCards[0].value) && allUniqueSymbols(selectedCards)) {
+            try {
+                
+                const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/meld`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        cardIds,
+                        gameId: roomData.gameId
+                    })
+                })
+
+                const data = await response.json()
+
+                const filteredCards = cards?.filter(card => !cardIds.includes(card.id))
+                setCards(filteredCards)
+                setSelectedCards([])
+
+            } catch (error) {
+                console.log(error)
+            }
+
+        } 
+
+
+
+    }
+
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
@@ -296,9 +353,9 @@ const page = () => {
                 <div className="flex-1 w-full flex justify-center items-center relative">
                     {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
 
-                        {players[1] ? <PlayerBubble playerName={players[1]} className={`-left-28 top-1/2 -translate-y-1/2`}/> : null}
-                        <PlayerBubble playerName={players[0]} className={`border-red-400 border-2 shadow-red-glow -top-6 left-1/2 -translate-x-1/2`}/>
-                        {players[2] ?<PlayerBubble playerName={players[2]} className={`-right-28 top-1/2 -translate-y-1/2`}/> : null}
+                        {players[1] ? <PlayerBubble playerName={players[1]} className={`${roomData.currentTurn === players[1] && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
+                        <PlayerBubble playerName={players[0]} className={`${roomData.currentTurn === players[0] && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
+                        {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
@@ -335,6 +392,7 @@ const page = () => {
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
+                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
             <GameMenu />
