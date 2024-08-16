@@ -1,4 +1,4 @@
-import { games, rooms } from "@/db/schema"
+import { games, meld, rooms } from "@/db/schema"
 import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
 import { and, eq } from "drizzle-orm"

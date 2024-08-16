@@ -23,7 +23,10 @@ export const GET = async (req: Request, res: Response) => {
             turnOrder: games.turnOrder,
             deck: games.deck
         }).from(rooms)
-        .leftJoin(games, eq(rooms.key, games.roomKey)).where(eq(games.gameStatus, "IN_PROGRESS"))
+        .leftJoin(games, eq(rooms.key, key)).where(and(
+            eq(games.roomKey, key),
+            eq(games.gameStatus, "IN_PROGRESS")
+        ))
 
         if(!currentGame.id) {
             return new NextResponse(JSON.stringify("No such game"), { status: 404 })

@@ -2,11 +2,12 @@
 
 import CardBack from "@/components/CardBack"
 import CardBundle from "@/components/CardBundle"
+import MeldArea from "@/components/MeldArea"
 import MyHand from "@/components/MyHand"
 import PlayerBubble from "@/components/PlayerBubble"
-import Table from "@/components/Table"
 import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
+import { meld } from "@/db/schema"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
 import { allUniqueSymbols, areCardsSequential, cn, getCards, toPusherKey } from "@/lib/utils"
@@ -14,6 +15,12 @@ import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+
+type Meld = typeof meld.$inferSelect;
+
+type GroupedMelds = {
+    [playerName: string]: Meld[];
+  };
 
 const page = () => {
 
@@ -42,6 +49,7 @@ const page = () => {
 
     const key = usePathname().split("/")[2]
     const router = useRouter()
+    const [melds, setMelds] = useState<GroupedMelds >({})
 
     const getRoomInfo = async () => {
         try {
@@ -237,7 +245,8 @@ const page = () => {
                         method: "POST",
                         body: JSON.stringify({
                             cardIds,
-                            gameId: roomData.gameId
+                            gameId: roomData.gameId,
+                            key: key
                         })
                     })
     
@@ -263,7 +272,8 @@ const page = () => {
                     method: "POST",
                     body: JSON.stringify({
                         cardIds,
-                        gameId: roomData.gameId
+                        gameId: roomData.gameId,
+                        key: key
                     })
                 })
 
@@ -278,9 +288,19 @@ const page = () => {
             }
 
         } 
+    }
 
+    const getMelds = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/meld`)
 
+            const data = await response.json()
 
+            console.log("Melds", data)
+            setMelds(data.groupedMelds)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
@@ -330,9 +350,37 @@ const page = () => {
     }, [])
 
     useEffect(() => {
+        pusherClient.subscribe(toPusherKey(`game:${key}:meld`))
+        
+            const meldHandler = (data: {newMeld: Meld, playerName: string}) => {
+                
+                console.log("Called", data)
+
+                setMelds((prevMelds) => ({
+                    ...prevMelds,
+                    [data.playerName]: [...(prevMelds[data.playerName] || []), data.newMeld],
+                  }));
+
+            }
+    
+        pusherClient.bind(`game-meld`, meldHandler)
+
+        return () => {
+            pusherClient.unsubscribe(toPusherKey(`game:${key}:meld`))
+            pusherClient.unbind('game-meld', meldHandler)
+        }
+    }, [])
+
+    console.log("Melds: ", melds)
+
+    useEffect(() => {
         setIsLoading(true)
         getRoomInfo()
     }, [])
+
+    useEffect(() => {
+        roomData.gameId && getMelds()
+    }, [roomData.gameId])
 
     useEffect(() => {
         if(roomData.currentTurn === session.data?.user?.name) {
@@ -354,10 +402,16 @@ const page = () => {
                     {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
 
                         {players[1] ? <PlayerBubble playerName={players[1]} className={`${roomData.currentTurn === players[1] && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
+                        
+                        
                         <PlayerBubble playerName={players[0]} className={`${roomData.currentTurn === players[0] && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
+                        
                         {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
+                        {melds[players[0]] && <MeldArea melds={melds[players[0]]} className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
+                        {players[1] && melds[players[1]] ? <MeldArea  melds={melds[players[1]]} className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
+                    
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
                         Start Game
                     </button> : <>
@@ -367,7 +421,7 @@ const page = () => {
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>
                     <div onClick={() => drawCard()}>
-                        <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew ? "border-red-500 shadow-red-glow" : ""}/>
+                        <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15? "border-red-500 shadow-red-glow" : ""}/>
                     </div>
                     </>}
             
@@ -375,6 +429,7 @@ const page = () => {
                     onClick={() => getMyCards()}>
                         <CardBundle />
                     </div>}
+                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
                     </div> : <TableOptions>
                         {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
