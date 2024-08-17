@@ -61,6 +61,60 @@ export const POST = async (req: Request, res: Response) => {
     }
 }
 
+export const PUT = async (req: Request, res: Response) => {
+    try {
+        const session = await getServerSession(authOptions)
+
+        if(!session || !session.user?.name) {
+            return new NextResponse(JSON.stringify("Unauthorized"))
+        }
+
+        const body = await req.json()
+        
+        console.log(body)
+
+        let [updatedMeld] = await db.update(meld).set({
+            cards: body.cards
+        }).where(and(
+            eq(meld.id, body.meldId),
+            eq(meld.gameId, body.gameId)
+        )).returning({
+            id: meld.id,
+            cards: meld.cards,
+            gameId: meld.gameId,
+            player: meld.player
+        })
+
+        const [{cards, handId}] = await db.select({
+            cards: hand.cards,
+            handId: hand.id
+        }).from(hand).where(and(
+            eq(hand.gameId, body.gameId),
+            eq(hand.player, session.user.name)
+        ))
+
+        const filteredCards = cards?.filter(num => !body.cards.includes(num));
+
+        console.log(filteredCards)
+
+        await db.update(hand).set({cards: filteredCards}).where(eq(hand.id, handId))
+
+        await pusherServer.trigger(
+            toPusherKey(`game:${body.key}:meld`), 
+            'game-meld', 
+            {
+                updatedMeld: updatedMeld,
+                playerName: updatedMeld.player
+            }
+        )
+        
+        return new NextResponse(JSON.stringify({ ok: true}), { status: 200 })
+    } catch (error) {
+        console.log(error)
+        return new NextResponse(JSON.stringify(error), { status: 500 })
+    }
+}
+
 export const GET = async (req: Request, res: Response) => {
 try {
     const url = new URL(req.url)

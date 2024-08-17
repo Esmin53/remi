@@ -234,6 +234,10 @@ const page = () => {
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))
     }
 
+    const updateStateAfterMeld = () => {
+        
+    }
+
     const meldCards = async () => {
         console.log("SelectedCards -> ", selectedCards)
         let cardIds = selectedCards.map((item) => item.id);
@@ -303,6 +307,15 @@ const page = () => {
         }
     }
 
+    const updateCards = (selectedCard: number) => {
+        setCards((prev) => {
+            let tempCards = prev.filter((item) => item.id !== selectedCard)
+
+            return tempCards
+        })
+        setSelectedCards([])
+    }
+
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
@@ -352,15 +365,32 @@ const page = () => {
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:meld`))
         
-            const meldHandler = (data: {newMeld: Meld, playerName: string}) => {
+            const meldHandler = (data: {newMeld: Meld,updatedMeld: Meld , playerName: string, selectedCard?: number}) => {
                 
                 console.log("Called", data)
 
-                setMelds((prevMelds) => ({
-                    ...prevMelds,
-                    [data.playerName]: [...(prevMelds[data.playerName] || []), data.newMeld],
-                  }));
-
+                if(data.newMeld) {
+                    setMelds((prevMelds) => ({
+                        ...prevMelds,
+                        [data.playerName]: [...(prevMelds[data.playerName] || []), data.newMeld],
+                      }));
+                }
+                if (data.updatedMeld) {
+                    setMelds((prevMelds) => {
+                        let tempMelds = (prevMelds[data.playerName] || []).filter((item) => item.id !== data.updatedMeld.id);
+            
+                        return {
+                            ...prevMelds,
+                            [data.playerName]: [...tempMelds, data.updatedMeld],
+                        };
+                    });
+            
+                    console.log("RoomData CurrentTurn", roomData.currentTurn)
+                    if(roomData.currentTurn === data.updatedMeld.player) {
+                        console.log("Testt")
+                    }
+                }
+            
             }
     
         pusherClient.bind(`game-meld`, meldHandler)
@@ -409,8 +439,10 @@ const page = () => {
                         {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
-                        {melds[players[0]] && <MeldArea melds={melds[players[0]]} className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
-                        {players[1] && melds[players[1]] ? <MeldArea  melds={melds[players[1]]} className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
+                        {melds[players[0]] && <MeldArea getNewCards={updateCards} melds={melds[players[0]]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
+                        {players[1] && melds[players[1]] ? <MeldArea getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1]]} selectedCards={selectedCards}
+                        className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
                     
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
                         Start Game
@@ -429,7 +461,8 @@ const page = () => {
                     onClick={() => getMyCards()}>
                         <CardBundle />
                     </div>}
-                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
+                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
+                    melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
                     </div> : <TableOptions>
                         {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
