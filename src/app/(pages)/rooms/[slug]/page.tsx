@@ -2,6 +2,7 @@
 
 import CardBack from "@/components/CardBack"
 import CardBundle from "@/components/CardBundle"
+import LoadingHand from "@/components/LoadingHand"
 import MeldArea from "@/components/MeldArea"
 import MyHand from "@/components/MyHand"
 import PlayerBubble from "@/components/PlayerBubble"
@@ -50,6 +51,7 @@ const page = () => {
     const key = usePathname().split("/")[2]
     const router = useRouter()
     const [melds, setMelds] = useState<GroupedMelds >({})
+    const [isFetching, setIsFetching] = useState(false)
 
     const getRoomInfo = async () => {
         try {
@@ -81,6 +83,8 @@ const page = () => {
 
 
     const startGame = async () => {
+        if(isFetching) return
+        setIsFetching(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`, {
                 method: "POST",
@@ -92,12 +96,14 @@ const page = () => {
             const data = await response.json()
 
             console.log("Start Game Data: ", data)
+            setIsFetching((prev) => false)
         } catch (error) {
             console.log(error)
         }
     }
 
     const getMyCards = async () => {
+        setIsFetching(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/hand`)
 
@@ -113,8 +119,10 @@ const page = () => {
             await setCardIds(data.cards)
             await setCards(getCards(data.cards))
 
+            setIsFetching((prev) => false)
         } catch (error) {
             console.log(error)
+            setIsFetching((prev) => false)
         }
     }
 
@@ -126,7 +134,7 @@ const page = () => {
         }
     };
 
-    const drawCard = () => {
+    const drawCard = async () => {
         if(roomData.currentTurn !== session.data?.user?.name) return
         
         if(hasDrew) {
@@ -138,19 +146,28 @@ const page = () => {
             console.log("Problem")
             return
         }
-
         setHasDrew(true)
-
-        //let newCard = cardToDraw.pop()
-
-        //console.log("New Card", newCard)
+        if(isFetching) return
+        setIsFetching(true)
 
         if(cardToDraw)
         setCards([...cards, cardToDraw])
+        setCardToDraw(null)
+
+        setIsFetching((prev) => false)
 
     }
 
     const discardCard = async () => {
+        if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
+            console.log("Testiramo malo")
+            setCards([...cards, lastDiscartedCard])
+            setHasDrew(true)
+            setLastDiscartedCard(null)
+            setIsFetching((prev) => false)
+            return
+        }
+        
         if(hasDiscarted) {
             console.log("Ne moze postar")
             return
@@ -163,6 +180,7 @@ const page = () => {
         if(!selectedCards.length || cards.length === 14) {
             return
         }
+        setIsFetching((prev) => true)
 
         setHasDiscarted(true)
         //cardToDraw.unshift(selectedCards[0])
@@ -181,16 +199,18 @@ const page = () => {
                 body: JSON.stringify({
                     id: roomData.gameId,
                     discartedCard: selectedCards[0].id,
-                    newHand:filteredIds
+                    newHand:filteredIds,
+                    cardToDraw: cardToDraw
                 })
             })
     
             const data = await response.json()
 
-            console.log("Turn Card Data: ", data)
+            setIsFetching((prev) => false)
+            console.log("Fetched card ")
 
         } catch (error) {
-            
+            setIsFetching((prev) => false)
         }
     }
 
@@ -234,13 +254,10 @@ const page = () => {
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))
     }
 
-    const updateStateAfterMeld = () => {
-        
-    }
-
     const meldCards = async () => {
-        console.log("SelectedCards -> ", selectedCards)
-        let cardIds = selectedCards.map((item) => item.id);
+        if(isFetching) return
+        setIsFetching(true)
+        let cardIds = selectedCards.map((item) => item.id).sort((a, b) => a - b);
         if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
             if(areCardsSequential(selectedCards)) {
                 try {
@@ -260,10 +277,14 @@ const page = () => {
                     setCards(filteredCards)
                     setSelectedCards([])
     
+                    setIsFetching((prev) => false)
+
                 } catch (error) {
                     console.log(error)
+                    setIsFetching((prev) => false)
                 }
             } else {
+                setIsFetching((prev) => false)
                 return
             }
 
@@ -287,11 +308,14 @@ const page = () => {
                 setCards(filteredCards)
                 setSelectedCards([])
 
+                setIsFetching((prev) => false)
             } catch (error) {
+                setIsFetching((prev) => false)
                 console.log(error)
             }
 
-        } 
+        }
+        setIsFetching((prev) => false) 
     }
 
     const getMelds = async () => {
@@ -316,11 +340,13 @@ const page = () => {
         setSelectedCards([])
     }
 
+    console.log(roomData.gameStatus)
+
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
             const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, 
-                gameId?: string, discartedCard?: number}) => {
+                gameId?: string, discartedCard?: number, players?: string[]}) => {
                 
                 console.log("Called")
                 if(data.gameStatus) {
@@ -329,6 +355,10 @@ const page = () => {
                         ...prev,
                         gameStatus: data.gameStatus!
                     }))
+                }
+
+                if (data.players) {
+                    setPlayers(data.players);
                 }
 
                 if(data.gameId) {
@@ -410,6 +440,7 @@ const page = () => {
 
     useEffect(() => {
         roomData.gameId && getMelds()
+        setPlayers(prev => prev.filter((item) => item !== session.data?.user?.name))
     }, [roomData.gameId])
 
     useEffect(() => {
@@ -425,8 +456,27 @@ const page = () => {
         </div>
     }
 
+    if(roomData.gameStatus === 'FINISHED') {
+        return <div className="flex-1 flex justify-center items-center">
+            <TableOptions>
+                <div className="w-full h-full flex flex-col items-center justify-center gap-6">
+                <h1 className="font-bold text-5xl">Game Finished</h1>
+                {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
+                        onClick={() => startGame()}>
+                            Start a new game
+                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
+                </div>
+            </TableOptions>
+        </div>
+    }
+
     return (
         <div className="flex-1 flex gap-2">
+            {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
+                <div className="relative w-full h-full">
+                    <Image fill alt="Cards icon" src='/cards.png'/>
+                </div>
+            </div> : null}
             <div className="flex-1 flex items-center flex-col pt-6 relative justify-evenly">
                 <div className="flex-1 w-full flex justify-center items-center relative">
                     {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
@@ -439,9 +489,9 @@ const page = () => {
                         {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
-                        {melds[players[0]] && <MeldArea getNewCards={updateCards} melds={melds[players[0]]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        {melds[players[0]] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0]]} gameId={roomData.gameId} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
-                        {players[1] && melds[players[1]] ? <MeldArea getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1]]} selectedCards={selectedCards}
+                        {players[1] && melds[players[1]] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1]]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
                     
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
@@ -453,15 +503,16 @@ const page = () => {
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>
                     <div onClick={() => drawCard()}>
-                        <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15? "border-red-500 shadow-red-glow" : ""}/>
+                        <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
+                            ? "border-red-500 shadow-red-glow" : ""}/>
                     </div>
                     </>}
             
                     {roomData.gameStatus === "IN_PROGRESS"  && cards.length === 0 && <div className="absolute bottom-2" 
                     onClick={() => getMyCards()}>
-                        <CardBundle />
+                        {!isFetching ? <CardBundle /> : null}
                     </div>}
-                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
+                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
                     </div> : <TableOptions>
@@ -475,6 +526,7 @@ const page = () => {
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}
+                    {isFetching && cards.length === 0 ? <LoadingHand /> : null}
                 <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>

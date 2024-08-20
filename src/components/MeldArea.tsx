@@ -13,11 +13,13 @@ interface MeldAreaProps {
     melds: Meld[],
     gameId: string | null,
     selectedCards: Card[],
-    getNewCards: (selectedCard: number) => void
+    getNewCards: (selectedCard: number) => void,
+    isFetching: boolean
 }
 
-const MeldArea = ({melds, className, gameId, selectedCards, getNewCards}: MeldAreaProps) => {
+const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetching}: MeldAreaProps) => {
     const [showAllMelds, setShowAllMelds] = useState(false)
+    const [isMelding, setIsMelding] = useState(false)
     
     const key = usePathname().split("/")[2]
     
@@ -30,6 +32,8 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards}: MeldAr
     })
 
     const addToMeld = async (meldId: number, cards: Card[]) => {
+        if(isMelding || isFetching) return
+        setIsMelding(prev => false)
         try {
             console.log(meldId, gameId, "KEY: ", key)
             if(allUniqueSymbols(cards)) {
@@ -59,6 +63,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards}: MeldAr
 
                     console.log("data", data)
                     getNewCards(selectedCard)
+                    setIsMelding(prev => false)
                 }
             } else {
                 let tempArray = cards
@@ -90,17 +95,23 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards}: MeldAr
 
                 console.log("data", data)
                 getNewCards(selectedCard)
-
+                setIsMelding(prev => false) 
 
             }
 
         } catch (error) {
+            setIsMelding(prev => false)
             console.log(error)
         }
     }
 
     return (
         <div>
+            {isMelding ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
+                <div className="relative w-full h-full">
+                    <Image fill alt="Cards icon" src='/cards.png'/>
+                </div>
+            </div> : null}
             {showAllMelds ? <div className="absolute w-full h-full left-0 top-0 z-40 flex flex-wrap items-start justify-start gap-6 p-4 bg-gray-400 bg-opacity-85">
                 <div className="w-12 h-12 bg-gray-300 rounded-full shadow-sm absolute right-2 top-2 flex items-center justify-center cursor-pointer" onClick={() => setShowAllMelds(false)} >
                     <ChevronUp className="w-9 h-9" />

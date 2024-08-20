@@ -1,7 +1,7 @@
 import { games, meld, rooms } from "@/db/schema"
 import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
-import { and, eq } from "drizzle-orm"
+import { and, asc, desc, eq } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 
@@ -25,7 +25,7 @@ export const GET = async (req: Request, res: Response) => {
             turnOrder: games.turnOrder
         }).from(rooms).fullJoin(games, eq(rooms.key, games.roomKey)).where(and(
             eq(rooms.key, key),
-        )).orderBy(rooms.createdAt)
+        )).orderBy(desc(games.createdAt)).limit(1)
 
         let data: {
             owner: string | null,

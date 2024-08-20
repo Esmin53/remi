@@ -42,7 +42,11 @@ export const games = pgTable("game", {
     turnOrder: text("turn_order").array(),
     currentTurn: text("current_turn"),
     roomKey: text("room_key").notNull(),
-    gameStatus: gameStatusEnum("game_status")
+    gameStatus: gameStatusEnum("game_status"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),  
+    winner: text("winner"),
+    playerDrew: boolean("player_drew").notNull().default(false)
 })
 
 export const gameRelations = relations(games, ({ one, many }) => ({
@@ -55,7 +59,8 @@ export const gameRelations = relations(games, ({ one, many }) => ({
         references: [rooms.key]
     }),
     players: many(users),
-    hands: many(hand)
+    hands: many(hand),
+    melds: many(meld)
 }))
 
 

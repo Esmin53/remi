@@ -58,7 +58,8 @@ export const POST = async (req: Request, res: Response) => {
                 cardToDraw: startingDeck[startingDeck.length - 1],
                 currentTurn: players[0].username,
                 gameStatus: "IN_PROGRESS",
-                gameId: game.id
+                gameId: game.id,
+                players: players.map((item) => item.username)
             }
         )
 
@@ -79,9 +80,17 @@ export const PUT = async (req: Request, res: Response) => {
 
         const body = await req.json();
 
+        console.log("Body: ", body)
+
         const [game] = await db.select().from(games).where(eq(games.id, body.id))
 
-        let tempDeck = game.deck?.slice(0, -1) || [];
+        
+        let tempDeck = [];
+        if(!body.cardToDraw) {
+            tempDeck = game.deck?.slice(0, -1) || []
+        } else {
+            tempDeck = game.deck?.slice(1) || []
+        }
 
         tempDeck?.unshift(body.discartedCard)
 
@@ -103,6 +112,26 @@ export const PUT = async (req: Request, res: Response) => {
                 eq(hand.gameId, body.id),
                 eq(hand.player, currentPlayer!)
             ))
+
+
+            if(body.newHand.length === 0) {
+                await db.update(games).set({
+                    gameStatus: "FINISHED"
+                }).where(eq(games.id, body.id))
+                
+                await pusherServer.trigger(
+                    toPusherKey(`game:${game.roomKey}:turn`), 
+                    'game-turn', 
+                    {
+                        cardToDraw: tempDeck[tempDeck.length - 1],
+                        discartedCard: tempDeck[0],
+                        currentTurn: nextPlayer,
+                        gameStatus: "FINISHED",
+                    }
+                )
+                
+                return new NextResponse(JSON.stringify({ok: true}), { status: 200 });
+            }
 
         await pusherServer.trigger(
             toPusherKey(`game:${game.roomKey}:turn`), 
