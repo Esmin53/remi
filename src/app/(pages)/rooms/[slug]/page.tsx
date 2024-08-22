@@ -33,7 +33,6 @@ const page = () => {
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
     const [isLoading, setIsLoading] = useState(true)
-    const [hasDiscarted, setHasDiscarted] = useState(true)
     const [hasDrew, setHasDrew] = useState(false)
     const [players, setPlayers] = useState<string[] >([])
     const [roomData, setRoomData] = useState<{
@@ -72,6 +71,7 @@ const page = () => {
             if(data.gameStatus === "IN_PROGRESS") {
                 let card = CARDS.find(item => item.id === data.deck)
                 setCardToDraw(card!)
+                setHasDrew(data.hasDrew)
             }
 
             setIsLoading(false)
@@ -146,12 +146,28 @@ const page = () => {
             console.log("Problem")
             return
         }
-        setHasDrew(true)
+
         if(isFetching) return
         setIsFetching(true)
 
+        const filteredIds = cards.map((item) => item.id);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/draw`, {
+            method: "PUT",
+            body: JSON.stringify({
+                hand:filteredIds,
+            })
+        })
+
+        const data = await response.json()
+
+        let [newCard] = getCards(data.cardToDraw)
+        setHasDrew(true)
+
+        console.log("Data: ", data)
+
         if(cardToDraw)
-        setCards([...cards, cardToDraw])
+        setCards([...cards, newCard])
         setCardToDraw(null)
 
         setIsFetching((prev) => false)
@@ -168,8 +184,9 @@ const page = () => {
             return
         }
         
-        if(hasDiscarted) {
+        if(!hasDrew) {
             console.log("Ne moze postar")
+            setIsFetching(false)
             return
         }
 
@@ -182,7 +199,6 @@ const page = () => {
         }
         setIsFetching((prev) => true)
 
-        setHasDiscarted(true)
         //cardToDraw.unshift(selectedCards[0])
         setLastDiscartedCard(selectedCards[0])
         setCards(cards.filter(item => item.id !== selectedCards[0].id))
@@ -194,7 +210,7 @@ const page = () => {
         .map((item) => item.id);
         
         try { 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/discard`, {
                 method: "PUT",
                 body: JSON.stringify({
                     id: roomData.gameId,
@@ -207,7 +223,6 @@ const page = () => {
             const data = await response.json()
 
             setIsFetching((prev) => false)
-            console.log("Fetched card ")
 
         } catch (error) {
             setIsFetching((prev) => false)
@@ -255,7 +270,7 @@ const page = () => {
     }
 
     const meldCards = async () => {
-        if(isFetching) return
+        if(isFetching || roomData.currentTurn !== session.data?.user?.name) return
         setIsFetching(true)
         let cardIds = selectedCards.map((item) => item.id).sort((a, b) => a - b);
         if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
@@ -324,7 +339,6 @@ const page = () => {
 
             const data = await response.json()
 
-            console.log("Melds", data)
             setMelds(data.groupedMelds)
         } catch (error) {
             console.log(error)
@@ -366,6 +380,7 @@ const page = () => {
                         ...prev,
                         gameId: data.gameId!
                     }))
+                    setHasDrew(true)
                 }
 
 
@@ -431,8 +446,6 @@ const page = () => {
         }
     }, [])
 
-    console.log("Melds: ", melds)
-
     useEffect(() => {
         setIsLoading(true)
         getRoomInfo()
@@ -445,7 +458,7 @@ const page = () => {
 
     useEffect(() => {
         if(roomData.currentTurn === session.data?.user?.name) {
-            setHasDiscarted(false)
+
             setHasDrew(false)
         }
     }, [roomData.currentTurn])
@@ -498,7 +511,7 @@ const page = () => {
                         Start Game
                     </button> : <>
                     <div className={cn("w-14 sm:w-16 md:w-24 lg:w-28 h-24 sm:h-32 md:h-40 lg:h-44 shadow border-2 border-gray-700 rounded-xl cursor-pointer relative", {
-                        "border-red-500 shadow-red-glow": hasDrew && !hasDiscarted && roomData.currentTurn === session.data?.user?.name
+                        "border-red-500 shadow-red-glow": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => discardCard()}>
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>

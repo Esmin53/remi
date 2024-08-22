@@ -48,7 +48,8 @@ export const POST = async (req: Request, res: Response) => {
         await db.update(games).set({ 
             deck: startingDeck,
             turnOrder: players.map((item) => item.username),
-            currentTurn: players[0].username
+            currentTurn: players[0].username,
+            playerDrew: true
         }).where(eq(games.id, game.id))
 
         await pusherServer.trigger(
