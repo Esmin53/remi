@@ -33,7 +33,7 @@ const authOptions: NextAuthOptions = {
 
                 try {
 
-                    console.log(credentials)
+                    console.log("Credentials", credentials)
 
                     const user = await db.select({
                         id: users.id,
@@ -42,12 +42,14 @@ const authOptions: NextAuthOptions = {
                     }).from(users).where(eq(users.username, credentials?.username))     
 
                     if(!user[0]) {
+                        console.log("No user[0]")
                         throw new Error("Unauthorized")
                     }
 
                     const isMatch = await bcrypt.compare(credentials.password, user[0].password)
 
                     if(!isMatch) {
+                        console.log("No isMatch")
                         throw new Error("Unauthorized")
                     } else {
                         return user[0]
