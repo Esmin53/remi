@@ -8,6 +8,7 @@ import MyHand from "@/components/MyHand"
 import PlayerBubble from "@/components/PlayerBubble"
 import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { meld } from "@/db/schema"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
@@ -171,7 +172,6 @@ const page = () => {
         setCardToDraw(null)
 
         setIsFetching((prev) => false)
-
     }
 
     const discardCard = async () => {
@@ -231,7 +231,7 @@ const page = () => {
 
     const leaveTable = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players?gameId=${roomData.gameId}&gameStatus=${roomData.gameStatus}`, {
                 method: "DELETE"
             });
 
@@ -364,11 +364,24 @@ const page = () => {
                 
                 console.log("Called")
                 if(data.gameStatus) {
-                    console.log(data.gameStatus)
-                    setRoomData(prev => ({
-                        ...prev,
-                        gameStatus: data.gameStatus!
-                    }))
+
+
+                    if(data.gameStatus === "INTERRUPTED" || data.gameStatus === "FINISHED") {
+                        setRoomData(prev => ({
+                            owner: prev.owner,
+                            gameId: prev.gameId,
+                            currentTurn: null,
+                            gameStatus: data.gameStatus!
+                        }))
+                        setMelds({})
+                        setCards([])
+                        
+                    } else {
+                        setRoomData(prev => ({
+                            ...prev,
+                            gameStatus: data.gameStatus!
+                        }))
+                    }
                 }
 
                 if (data.players) {
@@ -483,6 +496,24 @@ const page = () => {
         </div>
     }
 
+    if(roomData.gameStatus === 'INTERRUPTED') {
+        return <div className="flex-1 flex gap-2">
+        <div className="flex-1 flex justify-center items-center">
+            <TableOptions>
+                <div className="w-full h-full flex flex-col items-center justify-center gap-6">
+                <h1 className="font-bold text-5xl">Game was interrupted!</h1>
+                {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
+                        onClick={() => startGame()}>
+                            Start a new game
+                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
+                </div>
+            </TableOptions>
+        </div>
+        <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
+        </div> 
+
+    }
+
     return (
         <div className="flex-1 flex gap-2">
             {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
@@ -541,14 +572,29 @@ const page = () => {
                     selectCard={selectCard}/> : null}
                     {isFetching && cards.length === 0 ? <LoadingHand /> : null}
                 <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => leaveTable()}>Leave</p>
+                    <AlertDialog>
+                        <AlertDialogTrigger className="text-paleblue font-medium text-lg cursor-pointer">Leave</AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Leaving the table while the game is in progress will end the game for all players, 
+                                and you may be penalized if this happens repeatedly
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => leaveTable()}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
                     <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
-            <GameMenu />
+            <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div>
     )
 }

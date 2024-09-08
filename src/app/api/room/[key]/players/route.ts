@@ -1,4 +1,4 @@
-import { rooms, users } from "@/db/schema"
+import { games, rooms, users } from "@/db/schema"
 import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
@@ -68,6 +68,10 @@ export const DELETE = async (req: Request, res: Response) => {
         const { pathname } = url
         const key = pathname.split("/")[3]
 
+        const { searchParams } = new URL(req.url);
+        const gameId = searchParams.get('gameId') as string;
+        const gameStatus = searchParams.get('gameStatus')
+
         const room = await db.select({key: rooms.key}).from(rooms).where(eq(rooms.key, key))
 
         if(!room.length) {
@@ -76,12 +80,28 @@ export const DELETE = async (req: Request, res: Response) => {
 
         await db.update(users).set({roomKey: null}).where(eq(users.username, session.user.name))
 
+        if(gameStatus == 'IN_PROGRESS') {
+            await db.update(games).set({
+                gameStatus: "INTERRUPTED",
+                currentTurn: null,
+                deck: [],
+            }).where(eq(games.id, parseInt(gameId)))
+        }
+
         const players = await db.select().from(users).where(eq(users.roomKey, key))
 
         await pusherServer.trigger(
             toPusherKey(`players:`), 
             'incoming-player', 
             players
+        )
+
+        await pusherServer.trigger(
+            toPusherKey(`game:${key}:turn`), 
+            'game-turn', 
+            {
+                gameStatus: "INTERRUPTED",
+            }
         )
 
         return new NextResponse(JSON.stringify({ok: true, key: room[0].key}), { status: 200})

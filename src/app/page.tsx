@@ -13,14 +13,18 @@ export default async function Home() {
   
   const session = await getServerSession(authOptions)
   
+  if(!session?.user) {
+    redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/wellcome`)
+  }
+
   const [user] = await db.select({
     username: users.username,
     currentRoom: users.roomKey,
     ownedRoom: rooms.key
   }).from(users).where(eq(users.username, session?.user?.name!)).leftJoin(rooms, eq(users.username, rooms.ownerName))
 
-  if(user.currentRoom) {
-    redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${user.currentRoom}`)
+  if(user?.currentRoom) {
+    redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${user?.currentRoom}`)
   }
 
   return (
