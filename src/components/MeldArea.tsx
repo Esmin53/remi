@@ -117,15 +117,15 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
                     <ChevronUp className="w-9 h-9" />
                 </div>
                 {cards?.map((item) => {
-                    return <div className="flex" onClick={() => addToMeld(item.meld.id, item.cards)}>
-                        {item.cards.map((item) => <div className={cn("-ml-2 w-12 h-24 lg:w-20 lg:h-36 rounded-md relative overflow-hidden shadow border-2 border-gray-700")}>
+                    return <div className="flex z-[70] cursor-pointer" onClick={() => addToMeld(item.meld.id, item.cards)}>
+                        {item.cards.map((item) => <div className={cn("-ml-2 w-12 h-24 lg:w-20 lg:h-36  rounded-md relative overflow-hidden shadow border-2 border-gray-700")}>
                     <Image fill alt={item.label} src={item.image} quality={100}/>
                 </div>)}
                     </div>
                 })}
             
             </div> : null}
-            <div className={cn("flex items-center justify-evenly cursor-pointer overflow-hidden", className)} onClick={() => setShowAllMelds(true)}>
+            <div className={cn("flex items-center justify-evenly cursor-pointer overflow-hidden gap-3", className)} onClick={() => setShowAllMelds(true)}>
             <div className="flex cursor-pointer">
              {cards[0]?.cards && cards[0]?.cards.map((item) => {
                 return <div className={cn("-ml-2 w-12 h-24 lg:w-16 lg:h-28 rounded-md relative overflow-hidden shadow border-2 border-gray-700")}>

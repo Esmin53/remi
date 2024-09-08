@@ -1,10 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Table from "./Table"
 
 const TablePicker = () => {
-    const [currentTable, setCurrentTable] = useState(localStorage.getItem("table") || "/table/red.jpg")
+    const [currentTable, setCurrentTable] = useState("/table/red.jpg")
+
+    useEffect(() => {
+        typeof window !== "undefined" &&  setCurrentTable(localStorage.getItem("table") || "/table/red.jpg")
+    }, [])
 
     return (
         <div className="w-1/3 h-full flex flex-col gap-12 items-center justify-center overflow-hidden">

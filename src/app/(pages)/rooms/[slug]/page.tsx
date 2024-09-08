@@ -272,7 +272,7 @@ const page = () => {
     const meldCards = async () => {
         if(isFetching || roomData.currentTurn !== session.data?.user?.name) return
         setIsFetching(true)
-        let cardIds = selectedCards.map((item) => item.id).sort((a, b) => a - b);
+        let cardIds = selectedCards.sort((a, b) => Number(a.value) - Number(b.value)).map((item) => item.id);
         if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
             if(areCardsSequential(selectedCards)) {
                 try {
@@ -375,6 +375,7 @@ const page = () => {
                         }))
                         setMelds({})
                         setCards([])
+                        setLastDiscartedCard(prev => null)
                         
                     } else {
                         setRoomData(prev => ({
@@ -391,9 +392,10 @@ const page = () => {
                 if(data.gameId) {
                     setRoomData(prev => ({
                         ...prev,
+                        currentTurn: data.currentTurn,
                         gameId: data.gameId!
                     }))
-                    setHasDrew(true)
+                    setHasDrew(prev => true)
                 }
 
 
@@ -443,7 +445,7 @@ const page = () => {
                         };
                     });
             
-                    console.log("RoomData CurrentTurn", roomData.currentTurn)
+
                     if(roomData.currentTurn === data.updatedMeld.player) {
                         console.log("Testt")
                     }
@@ -470,8 +472,7 @@ const page = () => {
     }, [roomData.gameId])
 
     useEffect(() => {
-        if(roomData.currentTurn === session.data?.user?.name) {
-
+        if(roomData.currentTurn === session.data?.user?.name && lastDiscartedCard !== null) {
             setHasDrew(false)
         }
     }, [roomData.currentTurn])
@@ -513,7 +514,7 @@ const page = () => {
         </div> 
 
     }
-
+    console.log("hasDrew, cards.length, roomData.currentTurn, username", hasDrew, cards.length, roomData.currentTurn, session.data?.user?.name)
     return (
         <div className="flex-1 flex gap-2">
             {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
