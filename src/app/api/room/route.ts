@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
 import { toPusherKey } from "@/lib/utils"
 import { RoomCredentialsValidator } from "@/lib/validators/room"
-import { eq } from "drizzle-orm"
+import { eq, or } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 
@@ -21,10 +21,20 @@ export const POST = async (req: Request, res: Response) => {
 
         const { key, allowRandom} = RoomCredentialsValidator.parse(body)
 
-        const keyExists = await db.select({key: rooms.key}).from(rooms).where(eq(rooms.key, key))
+        const keyExists = await db.select({
+            key: rooms.key,
+            ownerName: rooms.ownerName
+        }).from(rooms).where(or(
+            eq(rooms.key, key),
+            eq(rooms.ownerName, session.user.name)
+        ))
 
         if(keyExists.length) {
-            return new NextResponse(JSON.stringify({ ok: false}), { status: 409})
+            if(keyExists[0].ownerName === session.user.name) {
+                return new NextResponse(JSON.stringify({ ok: false, message: "You are only allowed to create one room, please delete the old one before proceding."}), { status: 409})
+            } else {
+                return new NextResponse(JSON.stringify({ ok: false, message: "Room with that key already exists, please try another one!"}), { status: 409})
+            }
         }
 
         const newRoom = await db.insert(rooms).values({

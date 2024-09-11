@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 
 const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | null}) => {
-    const [players, setPlayers] = useState<{id: string, username: string}[]>([])
+    const [players, setPlayers] = useState<{username: string}[]>([])
 
     const key = usePathname().split("/")[2]
     const session = useSession()
@@ -19,7 +19,7 @@ const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | 
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`players:`))
         
-            const messagesHandler = (updatedPlayers: {id: string, username: string}[]) => {
+            const messagesHandler = (updatedPlayers: {username: string}[]) => {
                 setPlayers(updatedPlayers)
             }
     
@@ -69,7 +69,7 @@ const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | 
             </div>
             <div className="h-0.5 w-5/6 bg-lightblue rounded-lg" />
             <div className="w-full grid grid-cols-2 p-4 gap-3 gap-y-2 bg-lightblue shadow-sm rounded mt-1">
-            { players.map((item) => <div className="w-full h-full flex flex-col items-center" key={item.id}>
+            { players.map((item) => <div className="w-full h-full flex flex-col items-center" key={item.username}>
                 <div className="bg-paleblue shadow-sm border border-b-blue-200 flex-1 w-full aspect-square rounded-md relative">
                     <User2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 text-lightblue"/>
                     {item.username === owner ? <Crown className="top-0 left-0 w-7 h-7 -translate-x-1.5 -translate-y-1.5 text-amber-400 -rotate-45" /> : null}

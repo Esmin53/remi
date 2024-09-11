@@ -51,7 +51,8 @@ export const PUT = async (req: NextRequest, res: Response) => {
 
             if(body.newHand.length === 0) {
                 await db.update(games).set({
-                    gameStatus: "FINISHED"
+                    gameStatus: "FINISHED",
+                    winner: session.user.name
                 }).where(eq(games.id, body.id))
                 
                 await pusherServer.trigger(

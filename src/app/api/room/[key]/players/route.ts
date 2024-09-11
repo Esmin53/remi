@@ -3,7 +3,7 @@ import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
 import { toPusherKey } from "@/lib/utils"
-import { eq } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 
@@ -30,24 +30,42 @@ export const PUT = async (req: Request, res: Response) => {
 
         const body = await req.json()
 
+        const url = new URL(req.url)
+        const { pathname } = url
+        const key = pathname.split("/")[3]
+
+        console.log("Key", body.key)
+
         if(!session?.user || !session.user.name) {
             return new NextResponse(JSON.stringify({ message: "Unauthorized!"}), { status: 401 })
         }
 
-        const room = await db.select({key: rooms.key}).from(rooms).where(eq(rooms.key, body.key))
-
+        const room = await db.select({ key: rooms.key }).from(rooms).where(eq(rooms.key, body.key))
+        
         if(!room.length) {
             return new NextResponse(JSON.stringify({ message: "No such room"}), { status: 404 })
         }
 
-        await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name))
+        const [game] = await db.select({
+            gameStatus: games.gameStatus
+        }).from(games).where(eq(games.roomKey, key)).orderBy(desc(games.createdAt)).limit(1)
 
-        const players = await db.select().from(users).where(eq(users.roomKey, body.key))
+        if(game?.gameStatus === "IN_PROGRESS") {
+            return new NextResponse(JSON.stringify({ message: "Locked"}), { status: 423 })
+        }
+
+        const players = await db.select({ username: users.username}).from(users).where(eq(users.roomKey, body.key)) 
+
+        if(players.length > 3) {
+            return new NextResponse(JSON.stringify({ message: "Room is full"}), { status: 403 })
+        }
+
+        await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name))
 
         await pusherServer.trigger(
             toPusherKey(`players:`), 
             'incoming-player', 
-            players
+            [...players, {username: session.user.name}]
         )
 
         return new NextResponse(JSON.stringify({ok: true, key: room[0].key}), { status: 200})

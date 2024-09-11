@@ -10,6 +10,7 @@ import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { meld } from "@/db/schema"
+import { useToast } from "@/hooks/use-toast"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
 import { allUniqueSymbols, areCardsSequential, cn, getCards, toPusherKey } from "@/lib/utils"
@@ -27,8 +28,8 @@ type GroupedMelds = {
 const page = () => {
 
     const session = useSession()
+    const { toast } = useToast()
 
-    const [cardIds, setCardIds] = useState<number[] >([])
     const [selectedCards, setSelectedCards] = useState<Card[]>([])
     const [cardToDraw, setCardToDraw] = useState<Card | null>(null)
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
@@ -58,8 +59,7 @@ const page = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}`)
 
             const data = await response.json()
-
-            
+           
             setRoomData({
                 owner: data.owner,
                 gameId: data.gameId || null,
@@ -77,7 +77,6 @@ const page = () => {
 
             setIsLoading(false)
         } catch (error) {
-            console.log(error)
             setIsLoading(false)
         }
     }
@@ -96,10 +95,13 @@ const page = () => {
 
             const data = await response.json()
 
-            console.log("Start Game Data: ", data)
             setIsFetching((prev) => false)
         } catch (error) {
-            console.log(error)
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
         }
     }
 
@@ -110,19 +112,20 @@ const page = () => {
 
             const data = await response.json()
 
-
-
             if(data.discardedCard) {
                 let card = CARDS.find(item => item.id === data.discardedCard)
                 setLastDiscartedCard(card!)
             }
 
-            await setCardIds(data.cards)
             await setCards(getCards(data.cards))
 
             setIsFetching((prev) => false)
         } catch (error) {
-            console.log(error)
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
             setIsFetching((prev) => false)
         }
     }
@@ -138,40 +141,42 @@ const page = () => {
     const drawCard = async () => {
         if(roomData.currentTurn !== session.data?.user?.name) return
         
-        if(hasDrew) {
-            console.log("Already drew card this turn!")
-            return
-        }
+        if(hasDrew) return
         
-        if(cards.length >= 15) {
-            console.log("Problem")
-            return
-        }
-
+        if(cards.length >= 15) return
+        
         if(isFetching) return
         setIsFetching(true)
-
-        const filteredIds = cards.map((item) => item.id);
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/draw`, {
-            method: "PUT",
-            body: JSON.stringify({
-                hand:filteredIds,
+        
+        try {
+    
+            const filteredIds = cards.map((item) => item.id);
+    
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/draw`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    hand:filteredIds,
+                })
             })
-        })
-
-        const data = await response.json()
-
-        let [newCard] = getCards(data.cardToDraw)
-        setHasDrew(true)
-
-        console.log("Data: ", data)
-
-        if(cardToDraw)
-        setCards([...cards, newCard])
-        setCardToDraw(null)
-
-        setIsFetching((prev) => false)
+    
+            const data = await response.json()
+    
+            let [newCard] = getCards(data.cardToDraw)
+            setHasDrew(true)
+    
+            if(cardToDraw)
+            setCards([...cards, newCard])
+            setCardToDraw(null)
+    
+            setIsFetching((prev) => false)
+        } catch (error) {
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
+            setIsFetching(prev => false)
+        }
     }
 
     const discardCard = async () => {
@@ -220,12 +225,18 @@ const page = () => {
                 })
             })
     
+            if(!response.ok) throw new Error()
             const data = await response.json()
 
             setIsFetching((prev) => false)
 
         } catch (error) {
-            setIsFetching((prev) => false)
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
+            setIsFetching(prev => false)
         }
     }
 
@@ -241,9 +252,13 @@ const page = () => {
                 router.push("/");
             }
 
-            console.log("Leave table data ---> ", data)
         } catch (error) {
-            
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
+            setIsFetching(prev => false)
         }
     }
 
@@ -295,8 +310,12 @@ const page = () => {
                     setIsFetching((prev) => false)
 
                 } catch (error) {
-                    console.log(error)
-                    setIsFetching((prev) => false)
+                    toast({
+                        title: "Something went wrong!",
+                        description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                        variant: "destructive"
+                    })
+                    setIsFetching(prev => false)
                 }
             } else {
                 setIsFetching((prev) => false)
@@ -325,8 +344,12 @@ const page = () => {
 
                 setIsFetching((prev) => false)
             } catch (error) {
-                setIsFetching((prev) => false)
-                console.log(error)
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
+            setIsFetching(prev => false)
             }
 
         }
@@ -354,7 +377,6 @@ const page = () => {
         setSelectedCards([])
     }
 
-    console.log(roomData.gameStatus)
 
     useEffect(() => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
@@ -514,7 +536,7 @@ const page = () => {
         </div> 
 
     }
-    console.log("hasDrew, cards.length, roomData.currentTurn, username", hasDrew, cards.length, roomData.currentTurn, session.data?.user?.name)
+
     return (
         <div className="flex-1 flex gap-2">
             {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
@@ -567,7 +589,7 @@ const page = () => {
                         </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
                     </TableOptions>}
                 </div>
-                {cardIds?.length ? <MyHand 
+                {cards?.length ? <MyHand 
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}

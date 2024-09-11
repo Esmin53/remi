@@ -25,7 +25,6 @@ export const PUT = async (req: NextRequest, res: Response) => {
         let card = deck.pop()
 
         let newHand: number[] = [...body.hand, card]
-        console.log("New Hand: ", newHand)
 
             await db.update(games).set({
                 deck: deck,
@@ -42,7 +41,6 @@ export const PUT = async (req: NextRequest, res: Response) => {
 
         return new NextResponse(JSON.stringify({cardToDraw: [card]}), { status: 200 });
     } catch (error) {
-        console.log(error)
         return new NextResponse(JSON.stringify({error}), { status: 500 })
     }
 }
