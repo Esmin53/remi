@@ -41,7 +41,7 @@ export const games = pgTable("game", {
     deck: integer("deck").array(),
     turnOrder: text("turn_order").array(),
     currentTurn: text("current_turn"),
-    roomKey: text("room_key").notNull(),
+    roomKey: text("room_key").notNull().references(() => rooms.key, { onDelete: 'cascade' }),
     gameStatus: gameStatusEnum("game_status"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),  
@@ -67,7 +67,7 @@ export const gameRelations = relations(games, ({ one, many }) => ({
 export const hand = pgTable("hand", {
     id: serial("id").notNull().primaryKey(),
     cards: integer("cards").array(),
-    gameId: integer("game_id"),
+    gameId: integer("game_id").references(() => games.id, { onDelete: 'cascade' }),
     player: text("player")
 })  
 
@@ -85,7 +85,7 @@ export const handRelations = relations(hand, ({ one }) => ({
 export const meld = pgTable("meld", {
     id: serial("id").notNull().primaryKey(),
     cards: integer("cards").array(),
-    gameId: integer("game_id"),
+    gameId: integer("game_id").references(() => games.id, { onDelete: 'cascade' }),
     player: text("player")
 })  
 

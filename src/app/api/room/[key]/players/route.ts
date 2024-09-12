@@ -63,9 +63,11 @@ export const PUT = async (req: Request, res: Response) => {
         await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name))
 
         await pusherServer.trigger(
-            toPusherKey(`players:`), 
+            toPusherKey(`players:${key}`), 
             'incoming-player', 
-            [...players, {username: session.user.name}]
+            {
+                updatedPlayers: [...players, {username: session.user.name}]
+            }
         )
 
         return new NextResponse(JSON.stringify({ok: true, key: room[0].key}), { status: 200})
@@ -109,9 +111,11 @@ export const DELETE = async (req: Request, res: Response) => {
         const players = await db.select().from(users).where(eq(users.roomKey, key))
 
         await pusherServer.trigger(
-            toPusherKey(`players:`), 
+            toPusherKey(`players:${key}`), 
             'incoming-player', 
-            players
+            {
+                updatedPlayers: players
+            }
         )
 
         await pusherServer.trigger(

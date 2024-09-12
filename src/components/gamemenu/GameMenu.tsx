@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { usePathname, useRouter } from "next/navigation";
+import OwnerOptions from "./OwnerOptions";
 
 
 interface GameMenuProps {
@@ -59,7 +60,7 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
                 </div>
                 <h2 className="text-2xl font-bold">{session.data?.user?.name}</h2>
             </div>
-            <Players owner={owner} currentTurn={currentTurn}/>
+            <Players owner={owner} currentTurn={currentTurn} gameId={gameId} gameStatus={gameStatus}/>
             <div className="flex flex-col w-full">
                 <h1 className="text-2xl font-medium -translate-y-0.5">
                     {gameStatus === "IN_PROGRESS" ? "Game is in progress." : null}
@@ -71,6 +72,7 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
                     {gameStatus === "INTERRUPTED" || gameStatus === "FINISHED" ? "Waiting for table owner to start a new game!" : null}
                 </p>
             </div>
+            {owner === session.data?.user?.name ? <OwnerOptions gameId={gameId} gameStatus={gameStatus}/> : null}
             <div className="absolute top-4 right-4 w-10 h-10  cursor-pointer z-30 flex items-center justify-center">
             <AlertDialog>
                         <AlertDialogTrigger asChild>

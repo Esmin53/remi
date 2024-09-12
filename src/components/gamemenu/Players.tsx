@@ -5,28 +5,64 @@ import { toPusherKey } from "@/lib/utils"
 import { Crown, LogOut, User, User2 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast"
 
+interface PlayersProps {
+    owner: string,
+    currentTurn: string | null,
+    gameId: string | null,
+    gameStatus: string | null
+}
 
-const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | null}) => {
-    const [players, setPlayers] = useState<{username: string}[]>([])
+interface UpdatedPlayersProps {
+    updatedPlayers: {username: string}[]
+    deleted?: string
+    kicked?: string
+} 
+
+const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
+    const [players, setPlayers] = useState<{username: string}[] | null>(null)
 
     const key = usePathname().split("/")[2]
     const session = useSession()
+    const router = useRouter()
+    const { toast } = useToast()
 
+    // Handles players joining and leaving but also players being kicked and room being deleted
     useEffect(() => {
-        pusherClient.subscribe(toPusherKey(`players:`))
+        pusherClient.subscribe(toPusherKey(`players:${key}`))
         
-            const messagesHandler = (updatedPlayers: {username: string}[]) => {
+            const messagesHandler = ({updatedPlayers, deleted, kicked}: UpdatedPlayersProps) => {
+                
+                if(deleted && deleted === "ROOM_DELETED") {
+                    toast({
+                        title: "Room was deleted",
+                        description: "This room was deleted by owner.",
+                        variant: "destructive"
+                    })
+                    router.push("/")
+                    return
+                }
+
+                if(kicked && kicked === session.data?.user?.name) {
+                    toast({
+                        title: "You were removed from the room",
+                        description: "You were kicked from the room by the room owner.",
+                        variant: "destructive"
+                    })
+                    router.push("/")
+                }
+                
                 setPlayers(updatedPlayers)
             }
     
         pusherClient.bind(`incoming-player`, messagesHandler)
 
         return () => {
-            pusherClient.unsubscribe(toPusherKey(`players:`))
+            pusherClient.unsubscribe(toPusherKey(`players:${key}`))
             pusherClient.unbind('incoming-player', messagesHandler)
         }
     }, [])
@@ -43,11 +79,28 @@ const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | 
         }
     }
 
+    const kickPlayer = async (player: string) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/owner/kick?gameId=${gameId}&gameStatus=${gameStatus}&playerName=${player}`, {
+                method: "DELETE"
+            });
+
+            const data = await response.json()
+
+        } catch (error) {
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
+        }
+    }
+
     useEffect(() => {
         getPlayers()
     }, [])
 
-    if(!players.length) {
+    if(!players) {
         return (
             <div className="w-full grid grid-cols-2 p-2 gap-2 bg-lightblue rounded shadow-sm items-center justify-evenly min-h-16">
                 <div className="bg-paleblue shadow-sm border border-b-blue-200 flex-1 w-full aspect-square rounded-md relative animate-pulse" />
@@ -87,7 +140,7 @@ const Players = ({ owner, currentTurn }: { owner: string, currentTurn: string | 
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction>Continue</AlertDialogAction>
+                        <AlertDialogAction onClick={() => kickPlayer(item.username)}>Continue</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
