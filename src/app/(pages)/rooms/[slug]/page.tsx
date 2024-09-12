@@ -550,7 +550,6 @@ const page = () => {
 
                         {players[1] ? <PlayerBubble playerName={players[1]} className={`${roomData.currentTurn === players[1] && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
-                        
                         <PlayerBubble playerName={players[0]} className={`${roomData.currentTurn === players[0] && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
                         
                         {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
@@ -560,6 +559,8 @@ const page = () => {
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
                         {players[1] && melds[players[1]] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1]]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
+                        {players[2] && melds[players[2]] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2]]} selectedCards={selectedCards}
+                        className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
                         Start Game
