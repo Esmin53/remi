@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { RoomCredentialsValidator, TRoomCredentialsValidator } from "@/lib/validators/room"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { title } from "process"
 import { useState } from "react"
@@ -12,19 +13,31 @@ import { SubmitHandler, useForm } from "react-hook-form"
 
 const NewRoomForm = () => {
 
+  const images = [
+    "bg01.jpg",
+    "bg02.jpg",
+    "bg03.jpg",
+    "bg04.jpg",
+    "bg05.jpg",
+    "bg06.jpg",
+  ]
+
     const {
         register,
         handleSubmit,
-        formState: {errors}
+        formState: {errors},
+        setValue,
+        watch
     } = useForm<TRoomCredentialsValidator>({
         resolver: zodResolver(RoomCredentialsValidator)
     })
     const [isLoading, setIsLoading] = useState<boolean >(false)
+    const [background, setBackground] = useState<string >("bg01.jpg")
 
     const { toast } = useToast()
     const router = useRouter()
     
-    const onSubmit: SubmitHandler<TRoomCredentialsValidator> = async ({ key, allowRandom }) => {
+    const onSubmit: SubmitHandler<TRoomCredentialsValidator> = async ({ key, allowRandom , background}) => {
         setIsLoading(true);
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room`, {
@@ -35,6 +48,7 @@ const NewRoomForm = () => {
             body: JSON.stringify({
               key,
               allowRandom,
+              background
             }),
           });
       
@@ -77,7 +91,7 @@ const NewRoomForm = () => {
 
     return (
         <div className="absolute w-screen h-screen bg-[#4d4d4d]/85 top-0 left-0 z-50 flex items-center justify-center p-2 duration-75">
-        <form className="w-full max-w-96 py-2 pb-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full max-w-xl py-2 pb-4" onSubmit={handleSubmit(onSubmit)}>
             <h1 className="text-2xl font-medium py-2">Create new room</h1>
             <div className="h-0.5 w-3/4 bg-lightblue rounded-lg mb-2" />
             <div className="w-full flex flex-col gap-2">
@@ -89,6 +103,17 @@ const NewRoomForm = () => {
                 <div className="flex gap-2">
                     <input type="checkbox" {...register("allowRandom")}/>
                     <p>Allow random players to join your room</p>
+                </div>
+                <div className="w-full relative grid grid-cols-3 gap-2">
+                  {images.map((src) => {
+                    return <div className={cn("aspect-square relative rounded-md overflow-hidden", {
+                      "border-2 border-red-500": watch("background") === src
+                    })} key={src} onClick={() => {
+                      setValue("background", src)
+                    }}>
+                      <Image fill alt="Background template" src={`/background/${src}`}/>
+                    </div>
+                  })}
                 </div>
             <button className="w-full h-12 bg-red-500 hover:bg-red-500/90 shadow rounded-sm font-medium flex items-center justify-center"
             type="submit">

@@ -39,11 +39,13 @@ const page = () => {
     const [players, setPlayers] = useState<string[] >([])
     const [roomData, setRoomData] = useState<{
         owner: string
+        background: string
         gameId: string | null
         gameStatus: string | null
         currentTurn: string | null
     }>({
         owner: "",
+        background: "",
         gameId: null,
         gameStatus: null ,
         currentTurn: null
@@ -63,6 +65,7 @@ const page = () => {
             setRoomData({
                 owner: data.owner,
                 gameId: data.gameId || null,
+                background: data.background,
                 gameStatus: data.gameStatus || null,
                 currentTurn: data.currentTurn || null
             })
@@ -84,6 +87,7 @@ const page = () => {
 
     const startGame = async () => {
         if(isFetching) return
+
         setIsFetching(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game`, {
@@ -263,7 +267,7 @@ const page = () => {
     }
 
     const swapCards = () => {
-        if (selectedCards.length > 2 || selectedCards.length < 1) {
+        if (selectedCards.length > 2 || selectedCards.length < 2) {
              return
         }
 
@@ -286,6 +290,7 @@ const page = () => {
 
     const meldCards = async () => {
         if(isFetching || roomData.currentTurn !== session.data?.user?.name) return
+        if(selectedCards.length === cards.length) return
         setIsFetching(true)
         let cardIds = selectedCards.sort((a, b) => Number(a.value) - Number(b.value)).map((item) => item.id);
         if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
@@ -392,6 +397,7 @@ const page = () => {
                         setRoomData(prev => ({
                             owner: prev.owner,
                             gameId: prev.gameId,
+                            background: prev.background,
                             currentTurn: null,
                             gameStatus: data.gameStatus!
                         }))
@@ -500,31 +506,21 @@ const page = () => {
     }, [roomData.currentTurn])
 
     if(isLoading || session.status === "loading") {
-        return <div className="w-screen h-screen flex items-center justify-center">
+        return <div className="w-screen h-screen flex items-center justify-center" style={{
+            backgroundImage: `url(/background/bg01.jpg)`}}>
             <CardBack className="animate-pulse xl:w-32" />
         </div>
     }
 
-    if(roomData.gameStatus === 'FINISHED') {
-        return <div className="flex-1 flex justify-center items-center">
-            <TableOptions>
-                <div className="w-full h-full flex flex-col items-center justify-center gap-6">
-                <h1 className="font-bold text-5xl">Game Finished</h1>
-                {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
-                        onClick={() => startGame()}>
-                            Start a new game
-                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
-                </div>
-            </TableOptions>
-        </div>
-    }
-
-    if(roomData.gameStatus === 'INTERRUPTED') {
-        return <div className="flex-1 flex gap-2">
+    if(roomData.gameStatus !== 'IN_PROGRESS') {
+        return <div className="flex-1 flex gap-2 bg-cover" style={{
+            backgroundImage: `url(/background/${roomData.background})`}}>
         <div className="flex-1 flex justify-center items-center">
             <TableOptions>
                 <div className="w-full h-full flex flex-col items-center justify-center gap-6">
-                <h1 className="font-bold text-5xl">Game was interrupted!</h1>
+                {roomData.gameStatus === "FINISHED" ? <h1 className="font-bold text-5xl">Game Finished</h1> : null}
+                {roomData.gameStatus === "INTERRUPTED" ? <h1 className="font-bold text-5xl">Game Was Interrupted</h1> : null}
+
                 {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
                         onClick={() => startGame()}>
                             Start a new game
@@ -534,18 +530,18 @@ const page = () => {
         </div>
         <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div> 
-
     }
 
     return (
-        <div className="flex-1 flex gap-2">
+        <div className="flex-1 flex overflow-hidden bg-cover" style={{
+            backgroundImage: `url(/background/${roomData.background})`}}>
             {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
                 <div className="relative w-full h-full">
                     <Image fill alt="Cards icon" src='/cards.png'/>
                 </div>
             </div> : null}
-            <div className="flex-1 flex items-center flex-col pt-6 relative justify-evenly">
-                <div className="flex-1 w-full flex justify-center items-center relative">
+            <div className="flex-1 flex items-center flex-col pt-6 relative justify-center">
+                <div className="flex-1 w-full flex justify-center items-center lg:pt-16 lg:items-start relative">
                     {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
 
                         {players[1] ? <PlayerBubble playerName={players[1]} className={`${roomData.currentTurn === players[1] && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
@@ -583,6 +579,12 @@ const page = () => {
                     {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
+                    {cards?.length ? <MyHand 
+                    selectedCards={selectedCards}
+                    cards={cards} 
+                    selectCard={selectCard}/> : null}
+                    {isFetching && cards.length === 0 ? <LoadingHand /> : null}
+
                     </div> : <TableOptions>
                         {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
                         onClick={() => startGame()}>
@@ -590,12 +592,9 @@ const page = () => {
                         </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
                     </TableOptions>}
                 </div>
-                {cards?.length ? <MyHand 
-                    selectedCards={selectedCards}
-                    cards={cards} 
-                    selectCard={selectCard}/> : null}
-                    {isFetching && cards.length === 0 ? <LoadingHand /> : null}
-                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5">
+
+
+                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5 z-40">
                     <AlertDialog>
                         <AlertDialogTrigger className="text-paleblue font-medium text-lg cursor-pointer">Leave</AlertDialogTrigger>
                         <AlertDialogContent>

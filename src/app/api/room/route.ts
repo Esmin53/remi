@@ -19,7 +19,7 @@ export const POST = async (req: Request, res: Response) => {
 
         const body = await req.json()
 
-        const { key, allowRandom} = RoomCredentialsValidator.parse(body)
+        const { key, allowRandom, background} = RoomCredentialsValidator.parse(body)
 
         const keyExists = await db.select({
             key: rooms.key,
@@ -38,8 +38,9 @@ export const POST = async (req: Request, res: Response) => {
         }
 
         const newRoom = await db.insert(rooms).values({
-            key: key,
-            allowRandom: allowRandom,
+            key,
+            allowRandom,
+            background,
             ownerName: session.user.name,
         }).returning({key: rooms.key})
 

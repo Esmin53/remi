@@ -21,6 +21,7 @@ export const rooms = pgTable("room", {
     key: text("key").notNull().primaryKey(),
     allowRandom: boolean("allow_random").default(false),
     ownerName: text("owner_name"),
+    background: text("background").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),  
 })

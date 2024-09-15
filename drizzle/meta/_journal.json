@@ -57,6 +57,13 @@
       "when": 1726152555487,
       "tag": "0007_flat_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726413840634,
+      "tag": "0008_spooky_inhumans",
+      "breakpoints": true
     }
   ]
 }
