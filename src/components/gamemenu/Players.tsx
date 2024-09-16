@@ -18,13 +18,19 @@ interface PlayersProps {
 }
 
 interface UpdatedPlayersProps {
-    updatedPlayers: {username: string}[]
+    updatedPlayers: {
+        username: string
+        avatar: string | null
+    }[]
     deleted?: string
     kicked?: string
 } 
 
 const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
-    const [players, setPlayers] = useState<{username: string}[] | null>(null)
+    const [players, setPlayers] = useState<{
+        username: string
+        avatar: string | null
+    }[] | null>(null)
 
     const key = usePathname().split("/")[2]
     const session = useSession()
@@ -96,6 +102,8 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
         }
     }
 
+    console.log("Players: ", players)
+
     useEffect(() => {
         getPlayers()
     }, [])
@@ -121,15 +129,27 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                 </div>
             </div>
             <div className="h-0.5 w-5/6 bg-lightblue rounded-lg" />
-            <div className="w-full grid grid-cols-2 p-4 gap-3 gap-y-2 bg-lightblue shadow-sm rounded mt-1">
+            <div className="w-full grid grid-cols-2 p-2 sm:p-4 gap-3 gap-y-2 bg-lightblue shadow-sm rounded mt-1">
             { players.map((item) => <div className="w-full h-full flex flex-col items-center" key={item.username}>
                 <div className="bg-paleblue shadow-sm border border-b-blue-200 flex-1 w-full aspect-square rounded-md relative">
-                    <User2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 text-lightblue"/>
-                    {item.username === owner ? <Crown className="top-0 left-0 w-7 h-7 -translate-x-1.5 -translate-y-1.5 text-amber-400 -rotate-45" /> : null}
+                {item.username === owner ? (
+                    <Crown
+                    className="absolute top-0 left-0 w-7 h-7 -translate-x-1.5 -translate-y-1.5 text-amber-400 z-40 -rotate-45"
+                    />
+                ) : null}
+                {item.avatar ? (
+                    <Image
+                    fill
+                    alt={`${item.username}'s avatar`}
+                    src={`/avatar/${item.avatar}`}
+                    className="rounded-md z-20 object-cover"
+                    />
+                ) : null}
+                    <User2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 text-lightblue z-10"/>
                     {session.data?.user?.name === owner && item.username !== owner ? 
                     <AlertDialog>
                     <AlertDialogTrigger>
-                        <LogOut className="absolute top-1 right-1 w-5 h-5 cursor-pointer text-red-400" /> 
+                        <LogOut className="absolute top-1 right-1 w-5 h-5 cursor-pointer text-red-400 z-30" /> 
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -145,7 +165,7 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                     </AlertDialogContent>
                   </AlertDialog>
                     : null}
-                    {item.username === currentTurn ? <Image alt="Cards icon" src='/cards.png' quality={100} width={52} height={52} className="absolute left-0 bottom-0 -translate-x-2.5 translate-y-2.5"/> : null}
+                    {item.username === currentTurn ? <Image alt="Cards icon" src='/cards.png' quality={100} width={52} height={52} className="absolute left-0 bottom-0 -translate-x-2.5 translate-y-2.5 z-30"/> : null}
                 </div>
                 <p className="text-lg font-medium text-gray-800">{item.username}</p>
             </div>)}

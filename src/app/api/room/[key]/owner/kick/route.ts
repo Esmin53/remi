@@ -56,7 +56,10 @@ export const DELETE = async (req: Request, res: Response) => {
             )
         }
 
-        const players = await db.select().from(users).where(eq(users.roomKey, key))
+        const players = await db.select({
+            username: users.username,
+            avatar: users.avatar
+        }).from(users).where(eq(users.roomKey, key))
 
         await pusherServer.trigger(
             toPusherKey(`players:${key}`), 

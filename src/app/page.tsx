@@ -1,3 +1,4 @@
+import Avatar from "@/components/Avatar";
 import Menu from "@/components/Menu";
 import TablePicker from "@/components/TablePicker";
 import { rooms, users } from "@/db/schema";
@@ -20,7 +21,8 @@ export default async function Home() {
   const [user] = await db.select({
     username: users.username,
     currentRoom: users.roomKey,
-    ownedRoom: rooms.key
+    ownedRoom: rooms.key,
+    avatar: users.avatar
   }).from(users).where(eq(users.username, session?.user?.name!)).leftJoin(rooms, eq(users.username, rooms.ownerName))
 
   if(user?.currentRoom) {
@@ -32,9 +34,7 @@ export default async function Home() {
       <div className="flex-1 flex items-center justify-evenly">
         <div className="flex flex-col h-full justify-evenly items-start">
          <div className="w-96 flex gap-3 justify-start items-center">
-          <div className="w-32 h-32 rounded-full bg-paleblue border-2 border-lightblue flex items-center justify-center">
-            <User2 className="text-lightblue w-10 h-10 md:w-14 md:h-14 lg:w-20 lg:h-20" />
-          </div>
+          <Avatar currentAvatar={user.avatar || null}/>
           <div className="flex flex-col justify-evenly">
             <h1 className="text-2xl font-bold">{session?.user?.name}</h1>
             {user.ownedRoom ? <Link href={`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${user.ownedRoom}`} className="text-gray-400 cursor-pointer">

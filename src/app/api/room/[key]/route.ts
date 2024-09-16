@@ -1,7 +1,7 @@
-import { games, meld, rooms } from "@/db/schema"
+import { games, meld, rooms, users } from "@/db/schema"
 import authOptions from "@/lib/auth"
 import { db } from "@/lib/db"
-import { and, asc, desc, eq } from "drizzle-orm"
+import { and, asc, desc, eq, ne } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 
@@ -29,13 +29,24 @@ export const GET = async (req: Request, res: Response) => {
             eq(rooms.key, key),
         )).orderBy(desc(games.createdAt)).limit(1)
 
+        let playersWithAvatar = await db.select({
+            username: users.username,
+            avatar: users.avatar
+        }).from(users).where(and(
+            eq(users.roomKey, key),
+            ne(users.username, session.user.name!)
+        ))
+
         let data: {
             owner: string | null,
             gameId: number | null,
             gameStatus: string | null,
             currentTurn: string | null,
             deck: number | null,
-            players: string[],
+            players: {
+                username: string,
+                avatar: string | null
+            }[],
             hasDrew: boolean | null,
             background: string | null
         } = {
@@ -44,10 +55,13 @@ export const GET = async (req: Request, res: Response) => {
             gameStatus: roomData.gameStatus,
             currentTurn: roomData.currentTurn,
             deck: null,
-            players: roomData.turnOrder?.filter((player) => player !== session.user?.name) || [],
+            players: playersWithAvatar || [],
             hasDrew: roomData.hasDrew,
             background: roomData.background
         }
+
+
+        console.log("Players test: ", playersWithAvatar, data.players)
 
         if(roomData.deck) data.deck = roomData.deck[roomData.deck.length - 1]
 

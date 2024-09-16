@@ -14,9 +14,10 @@ export const GET = async (req: Request, res: Response) => {
         const { pathname } = url
         const key = pathname.split("/")[3]
 
-        console.log(key)
-
-        const players = await db.select().from(users).where(eq(users.roomKey, key))
+        const players = await db.select({
+            username: users.username,
+            avatar: users.avatar
+        }).from(users).where(eq(users.roomKey, key))
 
         return new NextResponse(JSON.stringify({players}), {status: 200})
     } catch (error) {
@@ -33,8 +34,6 @@ export const PUT = async (req: Request, res: Response) => {
         const url = new URL(req.url)
         const { pathname } = url
         const key = pathname.split("/")[3]
-
-        console.log("Key", body.key)
 
         if(!session?.user || !session.user.name) {
             return new NextResponse(JSON.stringify({ message: "Unauthorized!"}), { status: 401 })
@@ -54,19 +53,29 @@ export const PUT = async (req: Request, res: Response) => {
             return new NextResponse(JSON.stringify({ message: "Locked"}), { status: 423 })
         }
 
-        const players = await db.select({ username: users.username}).from(users).where(eq(users.roomKey, body.key)) 
+
+
+        const players = await db.select({ 
+            username: users.username,
+            avatar: users.avatar
+        }).from(users).where(eq(users.roomKey, body.key)) 
 
         if(players.length > 3) {
             return new NextResponse(JSON.stringify({ message: "Room is full"}), { status: 403 })
         }
 
-        await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name))
+        const [newPlayer] = await db.update(users).set({roomKey: room[0].key}).where(eq(users.username, session.user.name)).returning({
+            username: users.username,
+            avatar: users.avatar
+        })
+
+        console.log("New Player: ", newPlayer)
 
         await pusherServer.trigger(
             toPusherKey(`players:${key}`), 
             'incoming-player', 
             {
-                updatedPlayers: [...players, {username: session.user.name}]
+                updatedPlayers: [...players, newPlayer]
             }
         )
 
@@ -108,7 +117,10 @@ export const DELETE = async (req: Request, res: Response) => {
             }).where(eq(games.id, parseInt(gameId)))
         }
 
-        const players = await db.select().from(users).where(eq(users.roomKey, key))
+        const players = await db.select({
+            username: users.username,
+            avtar: users.avatar
+        }).from(users).where(eq(users.roomKey, key))
 
         await pusherServer.trigger(
             toPusherKey(`players:${key}`), 

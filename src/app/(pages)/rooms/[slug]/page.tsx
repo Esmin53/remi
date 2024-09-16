@@ -36,7 +36,10 @@ const page = () => {
     const [cards, setCards] = useState<Card[] >([])
     const [isLoading, setIsLoading] = useState(true)
     const [hasDrew, setHasDrew] = useState(false)
-    const [players, setPlayers] = useState<string[] >([])
+    const [players, setPlayers] = useState<{
+        username: string,
+        avatar: string | null
+    }[] >([])
     const [roomData, setRoomData] = useState<{
         owner: string
         background: string
@@ -387,7 +390,10 @@ const page = () => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
             const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, 
-                gameId?: string, discartedCard?: number, players?: string[]}) => {
+                gameId?: string, discartedCard?: number, players?: {
+                    username: string
+                    avatar: string | null
+                }[]}) => {
                 
                 console.log("Called")
                 if(data.gameStatus) {
@@ -496,7 +502,7 @@ const page = () => {
 
     useEffect(() => {
         roomData.gameId && getMelds()
-        setPlayers(prev => prev.filter((item) => item !== session.data?.user?.name))
+        setPlayers(prev => prev.filter((item) => item.username !== session.data?.user?.name))
     }, [roomData.gameId])
 
     useEffect(() => {
@@ -544,18 +550,18 @@ const page = () => {
                 <div className="flex-1 w-full flex justify-center items-center lg:pt-16 lg:items-start relative">
                     {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
 
-                        {players[1] ? <PlayerBubble playerName={players[1]} className={`${roomData.currentTurn === players[1] && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
+                        {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
-                        <PlayerBubble playerName={players[0]} className={`${roomData.currentTurn === players[0] && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
+                        <PlayerBubble avatar={players[0].avatar} playerName={players[0].username} className={`${roomData.currentTurn === players[0].username && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
                         
-                        {players[2] ? <PlayerBubble playerName={players[2]} className={`${roomData.currentTurn === players[2] && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
+                        {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
-                        {melds[players[0]] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0]]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        {melds[players[0].username] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
-                        {players[1] && melds[players[1]] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1]]} selectedCards={selectedCards}
+                        {players[1] && melds[players[1].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
-                        {players[2] && melds[players[2]] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2]]} selectedCards={selectedCards}
+                        {players[2] && melds[players[2].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >

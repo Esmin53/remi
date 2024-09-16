@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { usePathname, useRouter } from "next/navigation";
 import OwnerOptions from "./OwnerOptions";
+import Image from "next/image";
 
 
 interface GameMenuProps {
@@ -43,6 +44,8 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
         }
     }
 
+    console.log(session.data?.user)
+
     return (
         <div className="relative max-h-screen">
             <div className="absolute top-4 right-4 w-10 h-10 bg-lightblue cursor-pointer z-30 flex items-center justify-center rounded-full">
@@ -55,7 +58,8 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
                 <ChevronRight className="w-8 h-8" onClick={() => setHideMenu(true)}/>
             </div>
             <div className="w-full flex flex-col justify-center items-center">
-                <div className="w-40 h-40 rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative">
+                <div className="w-40 h-40 rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative overflow-hidden">
+                    {session.data?.user?.image ? <Image fill alt="User avatar" src={`/avatar/${session.data.user.image}`} className="object-cover z-30" /> : null}
                     <User2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lightblue w-28 h-28" />
                 </div>
                 <h2 className="text-2xl font-bold">{session.data?.user?.name}</h2>

@@ -27,6 +27,7 @@ export const POST = async (req: Request, res: Response) => {
 
         const players = await db.select({
             username: users.username,
+            avatar: users.avatar
         }).from(rooms).where(eq(rooms.key, body.key)).rightJoin(users, eq(rooms.key, users.roomKey));
 
         await db.update(games).set({ gameStatus: "FINISHED"}).where(eq(games.roomKey, body.key))
@@ -60,7 +61,7 @@ export const POST = async (req: Request, res: Response) => {
                 currentTurn: players[0].username,
                 gameStatus: "IN_PROGRESS",
                 gameId: game.id,
-                players: players.map((item) => item.username)
+                players: players.map((item) => item)
             }
         )
 
