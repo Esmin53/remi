@@ -71,6 +71,13 @@
       "when": 1726436799455,
       "tag": "0009_overjoyed_pete_wisdom",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1726597713334,
+      "tag": "0010_remarkable_mister_fear",
+      "breakpoints": true
     }
   ]
 }

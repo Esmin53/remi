@@ -10,7 +10,7 @@ const TableOptions = ({children}: {children: ReactNode}) => {
     }, [])
 
     return (
-        <div className="w-full  max-w-[850px] max-h-[600px] rounded-full relative overflow-hidden object-cover poker-table flex items-center
+        <div className="w-8/12 sm:w-10/12 lg:w-full max-w-[850px] max-h-[600px] rounded-full relative overflow-hidden object-cover poker-table flex items-center
         justify-center gap-4" style={{backgroundImage: `url(${bg})`}}>
             {children}
        </div>

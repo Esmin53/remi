@@ -18,8 +18,6 @@ export const PUT = async (req: NextRequest, res: Response) => {
         const body = await req.json();
         const id = req.nextUrl.pathname.split('/')[3];
 
-        console.log("Body: ", body, "Id: ", id)
-
         const [game] = await db.select().from(games).where(eq(games.id, parseInt(id)))
 
         if(game.deck === null) {
@@ -63,6 +61,7 @@ export const PUT = async (req: NextRequest, res: Response) => {
                         discartedCard: game.deck[0],
                         currentTurn: nextPlayer,
                         gameStatus: "FINISHED",
+                        winner: session.user.name
                     }
                 )
                 

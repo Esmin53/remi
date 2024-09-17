@@ -41,6 +41,7 @@ export const PUT = async (req: Request, res: Response) => {
                 gameStatus: "INTERRUPTED",
                 currentTurn: null,
                 deck: [],
+                message: "Game was interrupted by the room owner!"
             }).where(eq(games.id, parseInt(gameId)))
 
         await pusherServer.trigger(
@@ -48,6 +49,7 @@ export const PUT = async (req: Request, res: Response) => {
             'game-turn', 
             {
                 gameStatus: "INTERRUPTED",
+                message: "Game was interrupted by the room owner!"
             }
         )
         }

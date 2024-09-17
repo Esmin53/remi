@@ -114,7 +114,17 @@ export const DELETE = async (req: Request, res: Response) => {
                 gameStatus: "INTERRUPTED",
                 currentTurn: null,
                 deck: [],
-            }).where(eq(games.id, parseInt(gameId)))
+                message: `${session.user.name} has left the table.`
+            }).where(eq(games.id, parseInt(gameId)));
+
+            await pusherServer.trigger(
+                toPusherKey(`game:${key}:turn`), 
+                'game-turn', 
+                {
+                    gameStatus: "INTERRUPTED",
+                    message: `${session.user.name} has left the table.`
+                }
+            );
         }
 
         const players = await db.select({
@@ -127,14 +137,6 @@ export const DELETE = async (req: Request, res: Response) => {
             'incoming-player', 
             {
                 updatedPlayers: players
-            }
-        )
-
-        await pusherServer.trigger(
-            toPusherKey(`game:${key}:turn`), 
-            'game-turn', 
-            {
-                gameStatus: "INTERRUPTED",
             }
         )
 

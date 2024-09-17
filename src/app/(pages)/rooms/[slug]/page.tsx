@@ -46,12 +46,16 @@ const page = () => {
         gameId: string | null
         gameStatus: string | null
         currentTurn: string | null
+        winner: string | null
+        message: string | null
     }>({
         owner: "",
         background: "",
         gameId: null,
         gameStatus: null ,
-        currentTurn: null
+        currentTurn: null,
+        winner: null,
+        message: null
     })
 
     const key = usePathname().split("/")[2]
@@ -70,7 +74,9 @@ const page = () => {
                 gameId: data.gameId || null,
                 background: data.background,
                 gameStatus: data.gameStatus || null,
-                currentTurn: data.currentTurn || null
+                currentTurn: data.currentTurn || null,
+                winner: data.winner || null,
+                message: data.message || null
             })
 
             setPlayers(data.players)
@@ -390,7 +396,7 @@ const page = () => {
         pusherClient.subscribe(toPusherKey(`game:${key}:turn`))
         
             const turnHandler = (data: {cardToDraw: number, currentTurn: string, gameStatus?: string, 
-                gameId?: string, discartedCard?: number, players?: {
+                gameId?: string, discartedCard?: number, winner?: string, message?: string, players?: {
                     username: string
                     avatar: string | null
                 }[]}) => {
@@ -405,7 +411,9 @@ const page = () => {
                             gameId: prev.gameId,
                             background: prev.background,
                             currentTurn: null,
-                            gameStatus: data.gameStatus!
+                            gameStatus: data.gameStatus!,
+                            winner: data.winner || null,
+                            message: data.message || null
                         }))
                         setMelds({})
                         setCards([])
@@ -426,6 +434,8 @@ const page = () => {
                 if(data.gameId) {
                     setRoomData(prev => ({
                         ...prev,
+                        winner: null,
+                        message: null,
                         currentTurn: data.currentTurn,
                         gameId: data.gameId!
                     }))
@@ -523,15 +533,47 @@ const page = () => {
             backgroundImage: `url(/background/${roomData.background})`}}>
         <div className="flex-1 flex justify-center items-center">
             <TableOptions>
-                <div className="w-full h-full flex flex-col items-center justify-center gap-6">
-                {roomData.gameStatus === "FINISHED" ? <h1 className="font-bold text-5xl">Game Finished</h1> : null}
-                {roomData.gameStatus === "INTERRUPTED" ? <h1 className="font-bold text-5xl">Game Was Interrupted</h1> : null}
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-6 text-center">
+                {roomData.winner && (
+                    <p className="text-sm font-medium sm:text-xl md:text-3xl lg:text-4xl md:font-semibold bg-gradient-to-r from-pink-400 via-purple-300 to-blue-500 bg-clip-text text-transparent">
+                    {roomData.winner === session.data?.user?.name
+                        ? "You have won the game!"
+                        : `${roomData.winner} has won the game.`}
+                    </p>
+                )}
+                
+                {roomData.gameStatus === "FINISHED" && (
+                    <h1 className="font-semibold sm:font-bold sm:text-xl md:text-3xl lg:text-4xl text-green-500 bg-gray-900 bg-opacity-70 p-1 sm:p-2 md:p-3 lg:p-4 rounded-lg shadow-lg">
+                    🎉 Game Finished! 🎉
+                    </h1>
+                )}
 
-                {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
-                        onClick={() => startGame()}>
-                            Start a new game
-                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
+                {roomData.message && (
+                    <p className="text-sm font-medium sm:text-xl md:text-3xl sm:font-semibold text-white ">
+                        {roomData.message}
+                    </p>
+                )}
+
+                {roomData.gameStatus === "INTERRUPTED" && (
+                    <h1 className="font-semibold sm:font-bold text-xl sm:text-3xl md:text-4xl lg:text-5xl text-red-500 bg-gray-900 bg-opacity-70 p-1 sm:p-2 md:p-3 lg:p-4 rounded-lg shadow-lg">
+                    ⚠️ Game Was Interrupted ⚠️
+                    </h1>
+                )}
+
+                {session.data?.user?.name === roomData?.owner ? (
+                    <h1
+                    className="text-md font-medium sm:text-xl md:text-2xl lg:text-3xl sm:font-semibold text-white cursor-pointer z-40 bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 px-2 py-1 sm:p-2 lg:p-3 rounded-lg shadow-lg hover:-translate-y-1 duration-300"
+                    onClick={() => startGame()}
+                    >
+                    Start a New Game
+                    </h1>
+                ) : (
+                    <h1 className="text-sm sm:text-xl font-semibold text-white animate-pulse">
+                    ⏳ Waiting for the room owner to start the game...
+                    </h1>
+                )}
                 </div>
+
             </TableOptions>
         </div>
         <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
@@ -552,12 +594,12 @@ const page = () => {
 
                         {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
-                        <PlayerBubble avatar={players[0].avatar} playerName={players[0].username} className={`${roomData.currentTurn === players[0].username && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/>
+                        {players[0] ? <PlayerBubble avatar={players[0].avatar} playerName={players[0].username} className={`${roomData.currentTurn === players[0].username && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/> : null}
                         
                         {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
-                        {melds[players[0].username] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        {players[0] && melds[players[0].username] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
                         {players[1] && melds[players[1].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
@@ -589,7 +631,7 @@ const page = () => {
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}
-                    {isFetching && cards.length === 0 ? <LoadingHand /> : null}
+                    {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand /> : null}
 
                     </div> : <TableOptions>
                         {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"

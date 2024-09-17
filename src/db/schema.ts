@@ -48,6 +48,7 @@ export const games = pgTable("game", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),  
     winner: text("winner"),
+    message: text("message"),
     playerDrew: boolean("player_drew").notNull().default(false)
 })
 

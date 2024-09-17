@@ -45,6 +45,7 @@ export const DELETE = async (req: Request, res: Response) => {
                 gameStatus: "INTERRUPTED",
                 currentTurn: null,
                 deck: [],
+                message: `${playerName} was removed from the table by the room owner.`
             }).where(eq(games.id, parseInt(gameId)))
 
             await pusherServer.trigger(
@@ -52,6 +53,7 @@ export const DELETE = async (req: Request, res: Response) => {
                 'game-turn', 
                 {
                     gameStatus: "INTERRUPTED",
+                    message: `${playerName} was removed from the table by the room owner.`
                 }
             )
         }
