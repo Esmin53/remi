@@ -129,12 +129,12 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                 </div>
             </div>
             <div className="h-0.5 w-5/6 bg-lightblue rounded-lg" />
-            <div className="w-full grid grid-cols-2 p-2 sm:p-4 gap-3 gap-y-2 bg-lightblue shadow-sm rounded mt-1">
+            <div className="w-full grid grid-cols-4 sm:grid-cols-2 p-2 sm:p-4 gap-1 sm:gap-3 sm:gap-y-2 bg-lightblue shadow-sm rounded mt-1">
             { players.map((item) => <div className="w-full h-full flex flex-col items-center" key={item.username}>
-                <div className="bg-paleblue shadow-sm border border-b-blue-200 flex-1 w-full aspect-square rounded-md relative">
+                <div className="bg-paleblue shadow-sm border border-b-blue-200 flex-1 w-full aspect-square rounded sm:rounded-md relative">
                 {item.username === owner ? (
                     <Crown
-                    className="absolute top-0 left-0 w-7 h-7 -translate-x-1.5 -translate-y-1.5 text-amber-400 z-40 -rotate-45"
+                    className="absolute top-0 left-0 w-4 h-4 sm:w-7 sm:h-7 -translate-x-1 -translate-y-1 text-amber-400 z-40 -rotate-45"
                     />
                 ) : null}
                 {item.avatar ? (
@@ -142,14 +142,14 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                     fill
                     alt={`${item.username}'s avatar`}
                     src={`/avatar/${item.avatar}`}
-                    className="rounded-md z-20 object-cover"
+                    className="rounded-md z-20 object-center"
                     />
                 ) : null}
-                    <User2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 text-lightblue z-10"/>
+                    <User2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 sm:w-24 sm:h:24 lg:w-28 lg:h-28 text-lightblue z-10"/>
                     {session.data?.user?.name === owner && item.username !== owner ? 
                     <AlertDialog>
                     <AlertDialogTrigger>
-                        <LogOut className="absolute top-1 right-1 w-5 h-5 cursor-pointer text-red-400 z-30" /> 
+                        <LogOut className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 sm:w-5 sm:h-5 cursor-pointer text-red-400 z-30" /> 
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -165,9 +165,9 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                     </AlertDialogContent>
                   </AlertDialog>
                     : null}
-                    {item.username === currentTurn ? <Image alt="Cards icon" src='/cards.png' quality={100} width={52} height={52} className="absolute left-0 bottom-0 -translate-x-2.5 translate-y-2.5 z-30"/> : null}
+                    {item.username === currentTurn ? <Image alt="Cards icon" src='/cards.png' quality={100} width={52} height={52} className="absolute left-0 bottom-0 -translate-x-2.5 translate-y-2.5 z-30 w-8 h-8 sm:w-14 sm:h-14"/> : null}
                 </div>
-                <p className="text-lg font-medium text-gray-800">{item.username}</p>
+                <p className="text-sm sm:text-lg font-medium text-gray-800">{item.username}</p>
             </div>)}
         </div>
         </div>

@@ -30,13 +30,13 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex-1 flex justify-center relative" style={{backgroundImage: `url(/homepage.jpeg)`}}>
-      <div className="flex-1 flex items-center justify-evenly">
-        <div className="flex flex-col h-full justify-evenly items-start">
-         <div className="w-96 flex gap-3 justify-start items-center">
+    <main className="flex-1 flex justify-center relative overflow-hidden" style={{backgroundImage: `url(/homepage.jpeg)`}}>
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-evenly px-2 md:px-4 py-6">
+        <div className=" flex flex-col sm:flex-row lg:flex-col lg:h-full sm:justify-evenly items-center gap-10 sm:items-start w-full lg:w-fit">
+         <div className="lg:w-96 flex flex-col lg:flex-row gap-1 md:gap-3 items-center px-2 justify-center">
           <Avatar currentAvatar={user.avatar || null}/>
           <div className="flex flex-col justify-evenly">
-            <h1 className="text-2xl font-bold">{session?.user?.name}</h1>
+            <h1 className="text-xl md:text-2xl font-semibold lg:font-bold">{session?.user?.name}</h1>
             {user.ownedRoom ? <Link href={`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${user.ownedRoom}`} className="text-gray-400 cursor-pointer">
               <span className="font-semibold">{user.ownedRoom}</span>{" (your room)"}</Link> : null}
           </div>

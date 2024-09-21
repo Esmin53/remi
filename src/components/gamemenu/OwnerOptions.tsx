@@ -59,12 +59,12 @@ const OwnerOptions = ({gameId, gameStatus}: OwnerOptionsProps) => {
 
     return (
         <div className="w-full flex flex-col gap-1">
-            <h2 className="text-xl font-medium">Manage room</h2>
+            <h2 className="text-xl sm:font-medium">Manage room</h2>
             <div className="h-0.5 w-3/5 bg-lightblue rounded-lg" />
-            <p className="ml-2 cursor-pointer font-medium">Ping room</p>
+            <p className="ml-2 cursor-pointer sm:font-medium text-sm sm:text-base">Ping room</p>
             <AlertDialog>
                     <AlertDialogTrigger asChild>
-                    <p className="ml-2 cursor-pointer font-medium">Delete room</p>
+                    <p className="ml-2 cursor-pointer sm:font-medium text-sm sm:text-base">Delete room</p>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -81,7 +81,7 @@ const OwnerOptions = ({gameId, gameStatus}: OwnerOptionsProps) => {
                   </AlertDialog>
                     <AlertDialog>
                     <AlertDialogTrigger asChild>
-                    <p className="ml-2 cursor-pointer font-medium" >End game</p>
+                    <p className="ml-2 cursor-pointer sm:font-medium text-sm sm:text-basem" >End game</p>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>

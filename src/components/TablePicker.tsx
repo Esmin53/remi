@@ -8,31 +8,32 @@ const TablePicker = () => {
 
     useEffect(() => {
         typeof window !== "undefined" &&  setCurrentTable(localStorage.getItem("table") || "/table/red.jpg")
-    }, [])
+    }, []) 
 
     return (
-        <div className="w-1/3 h-full flex flex-col gap-12 items-center justify-center overflow-hidden">
-        <Table color={currentTable}/>
-        <div className="flex w-full">
+        <div className="w-screen sm:w-1/3 lg:h-full flex flex-col  items-center justify-center overflow-hidden sm:min-w-[23rem]">
+        <div className="w-full aspect-video flex justify-center">
+            <Table color={currentTable}/>
+        </div>
+        <div className="flex sm:grid sm:grid-flow-col sm:grid-cols-3 w-full overflow-x-auto px-2 no-scrollbar">
         <div onClick={() => {
             localStorage.setItem("table", "/table/green.jpg")
             setCurrentTable("/table/green.jpg")
-        }} className="w-1/3 hover:-translate-y-1.5 duration-100">
+        }} className="flex-shrink-0 w-4/6 sm:w-full hover:-translate-y-1.5 duration-100">
             <Table color="/table/green.jpg" />
         </div>
         <div onClick={() => {
             localStorage.setItem("table", "/table/red.jpg")
             setCurrentTable("/table/red.jpg")
-        }} className="w-1/3 hover:-translate-y-1.5 duration-100">
+        }} className="flex-shrink-0 w-4/6 sm:w-full hover:-translate-y-1.5 duration-100">
             <Table color="/table/red.jpg"/>
         </div>
         <div onClick={() => {
             localStorage.setItem("table", "/table/blue.jpg")
             setCurrentTable("/table/blue.jpg")
-        }} className="w-1/3 hover:-translate-y-1.5 duration-100">
+        }} className="flex-shrink-0 w-4/6 sm:w-full hover:-translate-y-1.5 duration-100">
             <Table color="/table/blue.jpg"/>
         </div>
-
 
         </div>
       </div>

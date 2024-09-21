@@ -48,25 +48,25 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
 
     return (
         <div className="relative max-h-screen">
-            <div className="absolute top-4 right-4 w-10 h-10 bg-lightblue cursor-pointer z-30 flex items-center justify-center rounded-full">
-                <ChevronLeft className="w-8 h-8" onClick={() => setHideMenu(false)}/>
+            <div className="absolute top-1.5 sm:top-4 right-1.5 sm:right-4 w-7 h-7 sm:w-10 sm:h-10 bg-lightblue/70 cursor-pointer z-30 flex items-center justify-center rounded-full">
+                <ChevronLeft className="w-6 sm:w-8 h-6 sm:h-8" onClick={() => setHideMenu(false)}/>
             </div>
-            <div className={cn("h-full z-40 w-screen max-w-96 xl:w-96 absolute right-0 top-0 xl:relative bg-[#486581] min-h-screen max-h-screen overflow-y-auto ml-auto border-l border-lightblue shadow-sm p-2 flex flex-col gap-4", {
+            <div className={cn("h-full z-40 w-screen max-w-80 lg:max-w-96 xl:w-96 absolute right-0 top-0 xl:relative bg-[#486581] min-h-screen max-h-screen overflow-y-auto ml-auto border-l border-lightblue shadow-sm p-2 flex flex-col gap-4", {
            "hidden": hideMenu 
         })}>
-            <div className="absolute top-4 left-4 w-10 h-10 bg-lightblue cursor-pointer z-30 flex items-center justify-center rounded-full">
-                <ChevronRight className="w-8 h-8" onClick={() => setHideMenu(true)}/>
+            <div className="absolute top-4 left-4 w-9 sm:w-10 h-9 sm:h-10 bg-lightblue cursor-pointer z-30 flex items-center justify-center rounded-full">
+                <ChevronRight className="w-7 h-7 sm:w-8 sm:h-8" onClick={() => setHideMenu(true)}/>
             </div>
             <div className="w-full flex flex-col justify-center items-center">
-                <div className="w-40 h-40 rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative overflow-hidden">
+                <div className="w-24 h-24 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded sm:rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative overflow-hidden">
                     {session.data?.user?.image ? <Image fill alt="User avatar" src={`/avatar/${session.data.user.image}`} className="object-cover z-30" /> : null}
                     <User2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lightblue w-28 h-28" />
                 </div>
-                <h2 className="text-2xl font-bold">{session.data?.user?.name}</h2>
+                <h2 className="sm:text-xl lg:text-2xl font-bold">{session.data?.user?.name}</h2>
             </div>
             <Players owner={owner} currentTurn={currentTurn} gameId={gameId} gameStatus={gameStatus}/>
             <div className="flex flex-col w-full">
-                <h1 className="text-2xl font-medium -translate-y-0.5">
+                <h1 className="text-lg sm:text-2xl font-medium -translate-y-0.5">
                     {gameStatus === "IN_PROGRESS" ? "Game is in progress." : null}
                     {gameStatus === "INTERRUPTED" ? "Last game was interrupted!" : null}
                 </h1>
@@ -80,7 +80,7 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
             <div className="absolute top-4 right-4 w-10 h-10  cursor-pointer z-30 flex items-center justify-center">
             <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <LogOut className="w-7 h-7" />
+                            <LogOut className="w-6 h-6 sm:w-7 sm:h-7" />
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>

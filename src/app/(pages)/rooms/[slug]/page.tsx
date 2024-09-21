@@ -531,7 +531,8 @@ const page = () => {
     if(roomData.gameStatus !== 'IN_PROGRESS') {
         return <div className="flex-1 flex gap-2 bg-cover" style={{
             backgroundImage: `url(/background/${roomData.background})`}}>
-        <div className="flex-1 flex justify-center items-center">
+                <div className="flex-1 flex items-center justify-center">
+       <div className="w-8/12 sm:w-9/12 max-w-[850px] max-h-[600px] relative">
             <TableOptions>
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-6 text-center">
                 {roomData.winner && (
@@ -576,27 +577,29 @@ const page = () => {
 
             </TableOptions>
         </div>
+                </div>
+ 
         <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div> 
     }
 
     return (
-        <div className="flex-1 flex overflow-hidden bg-cover" style={{
+        <div className="flex-1 flex overflow-hidden bg-cover relative" style={{
             backgroundImage: `url(/background/${roomData.background})`}}>
-            {isFetching ? <div className="absolute w-12 h-12 top-6 left-2 animate-bounce">
+            {isFetching ? <div className="absolute w-7 h-7 sm:w-12 sm:h-12 top-10 md:top-6 left-2 animate-bounce">
                 <div className="relative w-full h-full">
                     <Image fill alt="Cards icon" src='/cards.png'/>
                 </div>
             </div> : null}
-            <div className="flex-1 flex items-center flex-col pt-6 relative justify-center">
-                <div className="flex-1 w-full flex justify-center items-center lg:pt-16 lg:items-start relative">
-                    {roomData?.gameStatus === 'IN_PROGRESS' ? <div className="w-9/12  max-w-[850px] max-h-[600px] relative">
+            <div className="flex-1 flex flex-col items-start sm:items-center justify-center overflow-hidden">
+                <div className="w-full flex flex-col sm:justify-center justify-start items-center">
+                    <div className="w-[61.5%] sm:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
 
-                        {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-14 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
+                        {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-10 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
-                        {players[0] ? <PlayerBubble avatar={players[0].avatar} playerName={players[0].username} className={`${roomData.currentTurn === players[0].username && 'border-red-400 border-2 shadow-red-glow'} -top-12 md:-top-10 lg:-top-6 left-1/2 -translate-x-1/2`}/> : null}
+                        {players[0] ? <PlayerBubble avatar={players[0].avatar} playerName={players[0].username} className={`${roomData.currentTurn === players[0].username && 'border-red-400 border-2 shadow-red-glow'} top-1 left-1/2 -translate-x-1/2`}/> : null}
                         
-                        {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-14 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
+                        {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-10 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
                         {players[0] && melds[players[0].username] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
@@ -606,19 +609,17 @@ const page = () => {
                         {players[2] && melds[players[2].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
-                    {roomData.gameStatus != "IN_PROGRESS" && roomData.owner === session.data?.user?.name ? <button className="w-32 h-12 rounded-lg bg-peach cursor-pointer z-40" >
-                        Start Game
-                    </button> : <>
-                    <div className={cn("w-14 sm:w-16 md:w-24 lg:w-28 h-24 sm:h-32 md:h-40 lg:h-44 shadow border-2 border-gray-700 rounded-xl cursor-pointer relative", {
+                    
+                    <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
                         "border-red-500 shadow-red-glow": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => discardCard()}>
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>
-                    <div onClick={() => drawCard()}>
+                    <div onClick={() => drawCard()} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
                             ? "border-red-500 shadow-red-glow" : ""}/>
                     </div>
-                    </>}
+                    
             
                     {roomData.gameStatus === "IN_PROGRESS"  && cards.length === 0 && <div className="absolute bottom-2" 
                     onClick={() => getMyCards()}>
@@ -627,24 +628,20 @@ const page = () => {
                     {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
-                    {cards?.length ? <MyHand 
+
+                    </div>
+                </div>
+                {cards?.length ? <MyHand 
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}
                     {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand /> : null}
 
-                    </div> : <TableOptions>
-                        {session.data?.user?.name === roomData?.owner ? <h1 className="text-3xl font-semibold cursor-pointer z-40"
-                        onClick={() => startGame()}>
-                            Start a new game
-                        </h1> : <h1 className="text-3xl font-semibold">Waiting for room owner</h1>}
-                    </TableOptions>}
-                </div>
 
-
-                <div className="w-full h-12 bg-[#486581] mt-auto flex items-center justify-center gap-5 z-40">
+                <div className="w-fit p-1.5 sm:py-2 md:px-3 sm:h-10 bg-[#486581] flex items-center justify-center gap-3 opacity-75 hover:opacity-100 hover:z-50
+                sm:gap-5 fixed left-0 md:bottom-0 top-0 md:mt-auto rounded-br-lg md:rounded-br-none md:rounded-tr-lg sm:rounded-none shadow-sm sm:shadow">
                     <AlertDialog>
-                        <AlertDialogTrigger className="text-paleblue font-medium text-lg cursor-pointer">Leave</AlertDialogTrigger>
+                        <AlertDialogTrigger className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer">Leave</AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -659,10 +656,10 @@ const page = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
-                    <p className="text-paleblue font-medium text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
             <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
