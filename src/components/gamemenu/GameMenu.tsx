@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { usePathname, useRouter } from "next/navigation";
 import OwnerOptions from "./OwnerOptions";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
 
 interface GameMenuProps {
@@ -22,29 +23,29 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
     const key = usePathname().split("/")[2]
     const session = useSession()
     const router = useRouter()
+    const { toast } = useToast()
 
     const leaveTable = async () => {
         try {
-            console.log("Log1: ", key, gameStatus, gameId)
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players?gameId=${gameId}&gameStatus=${gameStatus}`, {
                 method: "DELETE"
             });
 
             const data = await response.json()
 
-            console.log(data)
-
-            if(data.ok && response.status === 200) {
+            if(response.ok && response.status === 200) {
                 router.push("/");
             }
 
-            console.log("Leave table data ---> ", data)
         } catch (error) {
-            
+            toast({
+                title: "Something went wrong!",
+                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                variant: "destructive"
+            })
         }
     }
 
-    console.log(session.data?.user)
 
     return (
         <div className="relative max-h-screen">

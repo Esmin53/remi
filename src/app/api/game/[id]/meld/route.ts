@@ -17,8 +17,6 @@ export const POST = async (req: Request, res: Response) => {
         }
 
         const body = await req.json()
-        
-        console.log(body)
 
         let [newMeld] = await db.insert(meld).values({
             cards: body.cardIds,
@@ -41,8 +39,6 @@ export const POST = async (req: Request, res: Response) => {
         ))
 
         const filteredCards = cards?.filter(num => !body.cardIds.includes(num));
-
-        console.log(filteredCards)
 
         await db.update(hand).set({cards: filteredCards}).where(eq(hand.id, handId))
 
@@ -70,8 +66,6 @@ export const PUT = async (req: Request, res: Response) => {
         }
 
         const body = await req.json()
-        
-        console.log(body)
 
         let [updatedMeld] = await db.update(meld).set({
             cards: body.cards

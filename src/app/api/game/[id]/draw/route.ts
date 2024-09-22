@@ -22,9 +22,12 @@ export const PUT = async (req: NextRequest, res: Response) => {
             return new NextResponse(JSON.stringify("Bad Request"), { status: 400 })
         }
 
-        let card = deck.pop()
-
-        let newHand: number[] = [...body.hand, card]
+        let card;
+        if(body.whereFrom === "top_of_the_deck") {
+            card = deck.pop()
+        } else if(body.whereFrom === "last_discarted_card") {
+           card = deck.shift();
+        }
 
             await db.update(games).set({
                 deck: deck,
@@ -32,14 +35,17 @@ export const PUT = async (req: NextRequest, res: Response) => {
             }).where(eq(games.id, parseInt(id)))
 
             await db.update(hand).set({
-                cards: newHand
+                cards: body.hand
             }).where(and(
                 eq(hand.gameId, parseInt(id)),
                 eq(hand.player, session.user.name!)
             ))
 
 
-        return new NextResponse(JSON.stringify({cardToDraw: [card]}), { status: 200 });
+        return new NextResponse(JSON.stringify({
+            newCard: [card],
+            newLastDiscartedCard: [deck[0]]
+        }), { status: 200 });
     } catch (error) {
         return new NextResponse(JSON.stringify({error}), { status: 500 })
     }

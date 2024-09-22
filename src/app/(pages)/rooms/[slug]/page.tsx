@@ -28,10 +28,10 @@ type GroupedMelds = {
 const page = () => {
 
     const session = useSession()
-    const { toast } = useToast()
+    const key = usePathname().split("/")[2]
 
     const [selectedCards, setSelectedCards] = useState<Card[]>([])
-    const [cardToDraw, setCardToDraw] = useState<Card | null>(null)
+    const [lastDiscartedCardToDraw, setLastDiscartedCardToDraw] = useState<Card | null>(null)
     const [lastDiscartedCard, setLastDiscartedCard] = useState<Card | null>(null)
     const [cards, setCards] = useState<Card[] >([])
     const [isLoading, setIsLoading] = useState(true)
@@ -57,11 +57,12 @@ const page = () => {
         winner: null,
         message: null
     })
-
-    const key = usePathname().split("/")[2]
-    const router = useRouter()
     const [melds, setMelds] = useState<GroupedMelds >({})
     const [isFetching, setIsFetching] = useState(false)
+
+    const router = useRouter()
+    const { toast } = useToast()
+
 
     const getRoomInfo = async () => {
         try {
@@ -83,7 +84,7 @@ const page = () => {
 
             if(data.gameStatus === "IN_PROGRESS") {
                 let card = CARDS.find(item => item.id === data.deck)
-                setCardToDraw(card!)
+                setLastDiscartedCardToDraw(card!)
                 setHasDrew(data.hasDrew)
             }
 
@@ -108,17 +109,19 @@ const page = () => {
 
             const data = await response.json()
 
-            setIsFetching((prev) => false)
         } catch (error) {
             toast({
                 title: "Something went wrong!",
                 description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
                 variant: "destructive"
             })
+        } finally {
+            setIsFetching((prev) => false)
         }
     }
 
     const getMyCards = async () => {
+        if(isFetching) return
         setIsFetching(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/hand`)
@@ -130,15 +133,15 @@ const page = () => {
                 setLastDiscartedCard(card!)
             }
 
-            await setCards(getCards(data.cards))
+            setCards(getCards(data.cards))
 
-            setIsFetching((prev) => false)
         } catch (error) {
             toast({
                 title: "Something went wrong!",
                 description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
                 variant: "destructive"
             })
+        } finally {
             setIsFetching((prev) => false)
         }
     }
@@ -151,60 +154,72 @@ const page = () => {
         }
     };
 
-    const drawCard = async () => {
+    const drawCard = async (whereFrom: string) => {
         if(roomData.currentTurn !== session.data?.user?.name) return
         
         if(hasDrew) return
         
         if(cards.length >= 15) return
         
+        if (!navigator.onLine) {
+            toast({
+                title: "You are offline!",
+                description: "Please check your internet connection before proceeding.",
+                variant: "destructive"
+            })
+            return
+        }
+
         if(isFetching) return
         setIsFetching(true)
         
         try {
-    
             const filteredIds = cards.map((item) => item.id);
+
+            let hand = whereFrom === "last_discarted_card" ? [...filteredIds, lastDiscartedCard?.id] : filteredIds;
     
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/draw`, {
                 method: "PUT",
                 body: JSON.stringify({
-                    hand:filteredIds,
+                    hand,
+                    whereFrom
                 })
             })
     
             const data = await response.json()
     
-            let [newCard] = getCards(data.cardToDraw)
+            let [newCard] = getCards(data.newCard)
             setHasDrew(true)
     
-            if(cardToDraw)
+            if(whereFrom === "last_discarted_card") {
+                setLastDiscartedCard(prev => getCards(data.newLastDiscartedCard)[0])
+            }
             setCards([...cards, newCard])
-            setCardToDraw(null)
-    
-            setIsFetching((prev) => false)
+
+
         } catch (error) {
             toast({
                 title: "Something went wrong!",
                 description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
                 variant: "destructive"
             })
-            setIsFetching(prev => false)
+        } finally {
+            setIsFetching((prev) => false)
         }
     }
 
     const discardCard = async () => {
-        if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
-            console.log("Testiramo malo")
-            setCards([...cards, lastDiscartedCard])
-            setHasDrew(true)
-            setLastDiscartedCard(null)
-            setIsFetching((prev) => false)
+
+        if (!navigator.onLine) {
+            toast({
+                title: "You are offline!",
+                description: "Please check your internet connection before proceeding.",
+                variant: "destructive"
+            })
             return
         }
         
         if(!hasDrew) {
-            console.log("Ne moze postar")
-            setIsFetching(false)
             return
         }
 
@@ -215,10 +230,14 @@ const page = () => {
         if(!selectedCards.length || cards.length === 14) {
             return
         }
+
         setIsFetching((prev) => true)
 
-        //cardToDraw.unshift(selectedCards[0])
-        setLastDiscartedCard(selectedCards[0])
+        let lastDiscartedCardTemp = lastDiscartedCard
+        let selectedCardTemp = selectedCards[0]
+
+
+        setLastDiscartedCard(selectedCardTemp)
         setCards(cards.filter(item => item.id !== selectedCards[0].id))
         setSelectedCards(selectedCards.filter((item => item.id !== selectedCards[0].id)))  
 
@@ -234,22 +253,28 @@ const page = () => {
                     id: roomData.gameId,
                     discartedCard: selectedCards[0].id,
                     newHand:filteredIds,
-                    cardToDraw: cardToDraw
+                    cardToDraw: lastDiscartedCardToDraw
                 })
             })
     
-            if(!response.ok) throw new Error()
-            const data = await response.json()
+            if(!response.ok) {
+                throw new Error()
 
-            setIsFetching((prev) => false)
+            }
 
-        } catch (error) {
+        } catch (error) {            
             toast({
                 title: "Something went wrong!",
-                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
+                description: "An unexpected error has occured, please check your internet connection or refreshing the browser.",
                 variant: "destructive"
             })
+
+            setLastDiscartedCard(lastDiscartedCardTemp)
+            setCards(prev => [...prev, selectedCardTemp])
+            setSelectedCards(prev => [...selectedCards, selectedCardTemp])  
             setIsFetching(prev => false)
+        } finally {
+            setIsFetching(false)
         }
     }
 
@@ -259,9 +284,7 @@ const page = () => {
                 method: "DELETE"
             });
 
-            const data = await response.json()
-
-            if(data.ok && response.status === 200) {
+            if(response.ok && response.status === 200) {
                 router.push("/");
             }
 
@@ -271,6 +294,7 @@ const page = () => {
                 description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
                 variant: "destructive"
             })
+        } finally {
             setIsFetching(prev => false)
         }
     }
@@ -298,77 +322,52 @@ const page = () => {
     }
 
     const meldCards = async () => {
-        if(isFetching || roomData.currentTurn !== session.data?.user?.name) return
-        if(selectedCards.length === cards.length) return
-        setIsFetching(true)
-        let cardIds = selectedCards.sort((a, b) => Number(a.value) - Number(b.value)).map((item) => item.id);
-        if(selectedCards.every((card) => card.symbol === selectedCards[0].symbol)) {
-            if(areCardsSequential(selectedCards)) {
-                try {
-                
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/meld`, {
-                        method: "POST",
-                        body: JSON.stringify({
-                            cardIds,
-                            gameId: roomData.gameId,
-                            key: key
-                        })
-                    })
+        if (isFetching 
+            || roomData.currentTurn !== session.data?.user?.name 
+            || selectedCards.length === cards.length 
+            || selectedCards.length < 3) return;
+        
+        setIsFetching(true);
     
-                    const data = await response.json()
+        const cardIds = selectedCards
+            .sort((a, b) => Number(a.value) - Number(b.value))
+            .map((item) => item.id);
+        
+        const isSequentialMeld = selectedCards.every(card => card.symbol === selectedCards[0].symbol) && areCardsSequential(selectedCards);
+        const isSameValueMeld = selectedCards.every(card => card.value === selectedCards[0].value) && allUniqueSymbols(selectedCards);
     
-                    const filteredCards = cards?.filter(card => !cardIds.includes(card.id))
-                    setCards(filteredCards)
-                    setSelectedCards([])
+        if (!isSequentialMeld && !isSameValueMeld) {
+            setIsFetching(false);
+            return;
+        }
     
-                    setIsFetching((prev) => false)
-
-                } catch (error) {
-                    toast({
-                        title: "Something went wrong!",
-                        description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
-                        variant: "destructive"
-                    })
-                    setIsFetching(prev => false)
-                }
-            } else {
-                setIsFetching((prev) => false)
-                return
-            }
-
-            
-
-        } else if(selectedCards.every((card) => card.value === selectedCards[0].value) && allUniqueSymbols(selectedCards)) {
-            try {
-                
-                const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/meld`, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        cardIds,
-                        gameId: roomData.gameId,
-                        key: key
-                    })
-                })
-
-                const data = await response.json()
-
-                const filteredCards = cards?.filter(card => !cardIds.includes(card.id))
-                setCards(filteredCards)
-                setSelectedCards([])
-
-                setIsFetching((prev) => false)
-            } catch (error) {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${key}/meld`, {
+                method: "POST",
+                body: JSON.stringify({
+                    cardIds,
+                    gameId: roomData.gameId,
+                    key: key,
+                }),
+            });
+    
+            if (!response.ok) throw new Error();
+    
+            const data = await response.json();
+    
+            const filteredCards = cards?.filter(card => !cardIds.includes(card.id));
+            setCards(filteredCards);
+            setSelectedCards([]);
+        } catch (error) {
             toast({
                 title: "Something went wrong!",
-                description: "An unexpected error has occured, please check your internet connection or refresh the browser.",
-                variant: "destructive"
-            })
-            setIsFetching(prev => false)
-            }
-
+                description: "An unexpected error has occurred, please check your internet connection or refresh the browser.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsFetching(false);
         }
-        setIsFetching((prev) => false) 
-    }
+    };
 
     const getMelds = async () => {
         try {
@@ -401,7 +400,7 @@ const page = () => {
                     avatar: string | null
                 }[]}) => {
                 
-                console.log("Called")
+
                 if(data.gameStatus) {
 
 
@@ -417,8 +416,6 @@ const page = () => {
                         }))
                         setMelds({})
                         setCards([])
-                        setLastDiscartedCard(prev => null)
-                        
                     } else {
                         setRoomData(prev => ({
                             ...prev,
@@ -440,19 +437,21 @@ const page = () => {
                         gameId: data.gameId!
                     }))
                     setHasDrew(prev => true)
+                    setLastDiscartedCard(null)
+                    setLastDiscartedCardToDraw(null)
                 }
 
 
                 if(data.gameStatus === "IN_PROGRESS") {
                     let card = CARDS.find(item => item.id === data.cardToDraw)
-                    setCardToDraw(card!)
+                    setLastDiscartedCardToDraw(card!)
                     setRoomData(prev => ({
                         ...prev,
                         currentTurn: data.currentTurn
                     }))
                 }
 
-                if(data.discartedCard) {
+                if(data.discartedCard && typeof data.discartedCard !== "undefined") {
                     let card = CARDS.find(item => item.id === data.discartedCard)
                     setLastDiscartedCard(card!)
                 }
@@ -522,8 +521,7 @@ const page = () => {
     }, [roomData.currentTurn])
 
     if(isLoading || session.status === "loading") {
-        return <div className="w-screen h-screen flex items-center justify-center" style={{
-            backgroundImage: `url(/background/bg01.jpg)`}}>
+        return <div className="w-screen h-screen flex items-center justify-center">
             <CardBack className="animate-pulse xl:w-32" />
         </div>
     }
@@ -566,7 +564,7 @@ const page = () => {
                     className="text-md font-medium sm:text-xl md:text-2xl lg:text-3xl sm:font-semibold text-white cursor-pointer z-40 bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 px-2 py-1 sm:p-2 lg:p-3 rounded-lg shadow-lg hover:-translate-y-1 duration-300"
                     onClick={() => startGame()}
                     >
-                    Start a New Game
+                    {isFetching ? <span className="animate-pulse">Starting...</span> : "Start a New Game"}
                     </h1>
                 ) : (
                     <h1 className="text-sm sm:text-xl font-semibold text-white animate-pulse">
@@ -602,20 +600,26 @@ const page = () => {
                         {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-10 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
                         <TableOptions>
-                        {players[0] && melds[players[0].username] && <MeldArea isFetching={isFetching} getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        {players[0] && melds[players[0].username] && <MeldArea isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
-                        {players[1] && melds[players[1].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
+                        {players[1] && melds[players[1].username] ? <MeldArea isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
-                        {players[2] && melds[players[2].username] ? <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
+                        {players[2] && melds[players[2].username] ? <MeldArea isFetching={isFetching} setIsFetching={setIsFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     
                     <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
                         "border-red-500 shadow-red-glow": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
-                    })} onClick={() => discardCard()}>
+                    })} onClick={() => {
+                        if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
+                            drawCard("last_discarted_card")
+                        } else {
+                            discardCard()
+                        }
+                    }}>
                         {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
                     </div>
-                    <div onClick={() => drawCard()} className="-translate-x-1.5 sm:-translate-x-0">
+                    <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
                             ? "border-red-500 shadow-red-glow" : ""}/>
                     </div>
@@ -625,7 +629,7 @@ const page = () => {
                     onClick={() => getMyCards()}>
                         {!isFetching ? <CardBundle /> : null}
                     </div>}
-                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
+                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea setIsFetching={setIsFetching} isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                 </TableOptions>
 
@@ -657,7 +661,7 @@ const page = () => {
                         </AlertDialogContent>
                     </AlertDialog>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
-                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => drawCard()}>Draw</p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => drawCard("top_of_the_deck")}>Draw</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>

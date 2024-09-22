@@ -49,8 +49,6 @@ export function areCardsSequential(cards: Card[]) {
 
   const sortedCards = cards.slice().sort((a, b) => parseInt(a.value) - parseInt(b.value));
 
-  console.log("Sorted cards -> ", sortedCards);
-
   for (let i = 1; i < sortedCards.length; i++) {
       if (parseInt(sortedCards[i].value) !== parseInt(sortedCards[i - 1].value) + 1) {
           return false; 
@@ -58,4 +56,23 @@ export function areCardsSequential(cards: Card[]) {
   }
 
   return true; 
+}
+
+
+
+export function canIAddToThisMeld({ cards, selectedCard }: { cards: Card[], selectedCard: Card }) {
+
+    if(allUniqueSymbols([...cards, selectedCard])) {
+      if(cards[0].value === selectedCard.value) return [...cards, selectedCard]
+    }
+    if(cards[0].symbol === selectedCard.symbol) {
+      if(areCardsSequential([...cards, selectedCard])) {
+        return [...cards, selectedCard].slice().sort((a, b) => parseInt(a.value) - parseInt(b.value));
+      } else { 
+        return null
+      }
+    } else {
+      return null
+    }
+
 }
