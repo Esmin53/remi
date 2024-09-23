@@ -7,8 +7,12 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Remi",
-  description: "Online multiplayer Remi card game",
+  title: "Rummy Online",
+  description: "Online multiplayer rummy card game",
+  icons: {
+    icon: "/icon.ico", 
+    href: "/icon.ico", 
+  },
 };
 
 export default function RootLayout({
@@ -18,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+			  <link rel='icon' href='/icon.ico' />
+      </head>
       <body className={inter.className}>
         <div className="flex flex-col min-h-screen w-full bg-primaryblue text-white">
           <Providers>

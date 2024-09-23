@@ -25,7 +25,7 @@ type GroupedMelds = {
     [playerName: string]: Meld[];
   };
 
-const page = () => {
+const Page = () => {
 
     const session = useSession()
     const key = usePathname().split("/")[2]
@@ -223,14 +223,11 @@ const page = () => {
             return
         }
 
-        if(selectedCards.length > 1) {
+        if(selectedCards.length !== 1) {
             return
         }
 
-        if(!selectedCards.length || cards.length === 14) {
-            return
-        }
-
+        if(isFetching) return
         setIsFetching((prev) => true)
 
         let lastDiscartedCardTemp = lastDiscartedCard
@@ -671,4 +668,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page
