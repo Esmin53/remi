@@ -614,7 +614,7 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <Image alt="Card" fill src={lastDiscartedCard.image} /> : null}
+                        {lastDiscartedCard?.image ? <Image alt="Card" fill src={`/cards/black/${lastDiscartedCard.image}`} /> : null}
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 

@@ -45,7 +45,7 @@ const MyHand = ({selectedCards, selectCard, cards}: HandProps) => {
             <div className="w-fit h-fit flex justify-center flex-shrink-0 ml-5 sm:ml-10 md:ml-16 lg:ml-20 duration-150"
             style={intersectionHeight}
             ref={divRef}>
-            {cards.map((item, index) => <div key={item.id} className={cn("hover:-my-4 duration-100")} onClick={() =>  selectCard(item)}>
+            {cards.length && cards?.map((item, index) => <div key={item.id} className={cn("hover:-my-4 duration-100")} onClick={() =>  selectCard(item)}>
                 <CardFront card={item} 
                 className={selectedCards.find((sc) => item.id === sc.id ) ? "border-red-500 -my-4 shadow-red-glow" : null}/>
             </div>)}
