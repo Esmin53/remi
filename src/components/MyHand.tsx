@@ -3,6 +3,7 @@ import CardFront from "./CardFront"
 import { cn, getCards } from "@/lib/utils"
 import { useEffect, useRef, useState } from "react"
 import { ChevronUp, LucideArrowUp } from "lucide-react"
+import ReactDOM from "react-dom";
 
 interface HandProps {
 
@@ -34,23 +35,29 @@ const MyHand = ({selectedCards, selectCard, cards}: HandProps) => {
           }
         }
     };
+
+    const chevronElement = (
+        <div className="fixed bottom-2 right-2 z-50 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-lightblue/50 cursor-pointer flex items-center justify-center" 
+            onClick={handleCheckIntersection}>
+            <ChevronUp className={`w-5 h-5 sm:w-7 sm:h-7 ${!moveCardsUp ? "rotate-0" : "rotate-180"} duration-100`} />
+        </div>
+    );
     
     return (
-        <div className={cn("w-full flex items-start justify-center -translate-y-8 sm:-translate-y-5")}>
-            <div className="fixed sm:relative w-fit">
-                <div className="absolute top-1.5 xl:hidden -right-9 z-50 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-lightblue/50 cursor-pointer flex items-center justify-center" 
-                    onClick={handleCheckIntersection}>
-                    <ChevronUp className={`w-5 h-5 sm:w-7 sm:h-7 ${!moveCardsUp ? "rotate-0": "rotate-180"} duration-100`}/>
-                </div>
-            <div className="w-fit h-fit flex justify-center flex-shrink-0 ml-5 sm:ml-10 md:ml-16 lg:ml-20 duration-150"
+        <div className={cn("w-full flex items-start justify-center absolute -bottom-8  sm:-bottom-24 md:-bottom-36")}>
+            <div className="relative w-fit">
+
+            <div className="w-fit h-fit flex justify-center flex-shrink-0 ml-5 sm:ml-10 md:ml-16 lg:ml-20 duration-150 "
             style={intersectionHeight}
             ref={divRef}>
             {cards.length && cards?.map((item, index) => <div key={item.id} className={cn("hover:-my-4 duration-100")} onClick={() =>  selectCard(item)}>
                 <CardFront card={item} 
-                className={selectedCards.find((sc) => item.id === sc.id ) ? "border-red-500 -my-4 shadow-red-glow" : null}/>
+                className={selectedCards.find((sc) => item.id === sc.id ) ? "border-red-500 -my-2 sm:-my-4 shadow-red-glow" : null}/>
             </div>)}
             </div>
             </div>
+
+            {ReactDOM.createPortal(chevronElement, document.body)}
         </div>
     )
 }

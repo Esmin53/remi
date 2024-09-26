@@ -580,16 +580,16 @@ const Page = () => {
     }
 
     return (
-        <div className="flex-1 flex overflow-hidden bg-cover relative" style={{
+        <div className="flex-1 flex bg-cover relative overflow-hidden" style={{
             backgroundImage: `url(/background/${roomData.background})`}}>
             {isFetching ? <div className="absolute w-7 h-7 sm:w-12 sm:h-12 top-10 md:top-6 left-2 animate-bounce">
                 <div className="relative w-full h-full">
                     <Image fill alt="Cards icon" src='/cards.png'/>
                 </div>
             </div> : null}
-            <div className="flex-1 flex flex-col items-start sm:items-center justify-center overflow-hidden">
-                <div className="w-full flex flex-col sm:justify-center justify-start items-center">
-                    <div className="w-[61.5%] sm:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
+            <div className="flex-1 flex flex-col items-start sm:items-center justify-center ">
+                <div className="w-full flex flex-col sm:justify-center justify-start items-center relative">
+                    <div className="w-1/2 sm:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
 
                         {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-10 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
@@ -606,7 +606,7 @@ const Page = () => {
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     
-                    <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
+                    <div className={cn("w-[2.28rem] h-[3.25rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
                         "border-red-500 shadow-red-glow overflow-hidden": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => {
                         if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
@@ -615,12 +615,12 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"-ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0"}/> : null}
+                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"-ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0 w-[2.28rem] h-[3.25rem]"}/> : null}
                         
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
-                            ? "border-red-500 shadow-red-glow" : ""}/>
+                            ? "border-red-500 shadow-red-glow w-[2.28rem] h-[3.25rem]" : " w-[2.28rem] h-[3.25rem]"}/>
                     </div>
                     
             
@@ -630,15 +630,17 @@ const Page = () => {
                     </div>}
                     {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea setIsFetching={setIsFetching} isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
-                </TableOptions>
+                
 
-                    </div>
-                </div>
+                </TableOptions>
                 {cards?.length ? <MyHand 
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}
                     {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand /> : null}
+                    </div>
+ 
+                </div>
 
 
                 <div className="w-fit p-1.5 sm:py-2 md:px-3 sm:h-10 bg-[#486581] flex items-center justify-center gap-3 opacity-75 hover:opacity-100 hover:z-50
