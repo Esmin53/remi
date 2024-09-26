@@ -98,7 +98,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
             <div className={cn("flex items-center justify-evenly cursor-pointer overflow-hidden gap-3", className)} onClick={() => setShowAllMelds(true)}>
             <div className="flex cursor-pointer items-center">
              {cards[0]?.cards && cards[0]?.cards.map((item) => {
-                return <div key={item.id} className={cn("-ml-3 w-[2.1rem] h-[3rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
+                return <div key={item.id} className={cn("-ml-2 w-[1.76rem] h-[2.5rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
                 "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
                 "border-gray-300 bg-[#ffffff]": currentDeck === "white"
                 })}>
@@ -109,7 +109,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
             </div>
             <div className="hidden sm:flex cursor-pointer ">
              {cards[1]?.cards && cards[1]?.cards.map((item) => {
-                return <div key={item.id} className={cn("-ml-2 w-[2.1rem] h-[3rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
+                return <div key={item.id} className={cn("-ml-2 w-[1.76rem] h-[2.5rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
                     "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
                 "border-gray-300 bg-[#ffffff]": currentDeck === "white"
                 })}>

@@ -16,7 +16,7 @@ const CardFront = ({ card, className }:  CardProps) => {
     }, []) 
 
     return (
-    <div className={cn("w-[2.1rem] h-[3rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 relative -ml-[1.125rem] sm:-ml-12 md:-ml-20 lg:-ml-24 shadow-sm sm:shadow border sm:border-2 rounded-sm sm:rounded-lg md:rounded-xl cursor-pointer duration-100", {
+    <div className={cn("w-[1.9rem] h-[2.75rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 relative -ml-[1.15rem] sm:-ml-12 md:-ml-20 lg:-ml-24 shadow-sm sm:shadow border sm:border-2 rounded-sm sm:rounded-lg md:rounded-xl cursor-pointer duration-100", {
         "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
         "border-gray-300 bg-[#ffffff]": currentDeck === "white"
     }, className)}>
