@@ -2,6 +2,7 @@
 
 import CardBack from "@/components/CardBack"
 import CardBundle from "@/components/CardBundle"
+import CardFront from "@/components/CardFront"
 import LoadingHand from "@/components/LoadingHand"
 import MeldArea from "@/components/MeldArea"
 import MyHand from "@/components/MyHand"
@@ -606,7 +607,7 @@ const Page = () => {
                     
                     
                     <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
-                        "border-red-500 shadow-red-glow": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
+                        "border-red-500 shadow-red-glow overflow-hidden": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => {
                         if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
                             drawCard("last_discarted_card")
@@ -614,7 +615,8 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <Image alt="Card" fill src={`/cards/black/${lastDiscartedCard.image}`} /> : null}
+                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"-ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0"}/> : null}
+                        
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 

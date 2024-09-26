@@ -1,4 +1,6 @@
 import Avatar from "@/components/Avatar";
+import DeckPicker from "@/components/DeckPicker";
+import GameOptions from "@/components/GameOptions";
 import Menu from "@/components/Menu";
 import TablePicker from "@/components/TablePicker";
 import { rooms, users } from "@/db/schema";
@@ -43,7 +45,15 @@ export default async function Home() {
          </div>
          <Menu />
         </div>
-        <TablePicker />
+        <div className="flex flex-col sm:flex-row lg:flex-col justify-start items-center w-full lg:w-1/3 gap-8">
+        <div className="w-full flex justify-center py-4">
+          <img className="w-60 sm:w-72 md:w-80 lg:w-96" src="/logo01.png" />
+        </div>
+          <div className="flex flex-col gap-4 justify-center items-center w-full">
+            <TablePicker />
+            <DeckPicker />
+          </div>
+        </div>
       </div>
     </main>
   );

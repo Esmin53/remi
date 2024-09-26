@@ -11,8 +11,8 @@ const TablePicker = () => {
     }, []) 
 
     return (
-        <div className="w-screen sm:w-1/3 lg:h-full flex flex-col  items-center justify-center overflow-hidden sm:min-w-[23rem]">
-        <div className="w-full aspect-video flex justify-center">
+        <div className="flex-1 w-full flex flex-col  items-center justify-center overflow-hidden max-w-96">
+        <div className="w-full aspect-video flex justify-center ">
             <Table color={currentTable}/>
         </div>
         <div className="flex sm:grid sm:grid-flow-col sm:grid-cols-3 w-full overflow-x-auto px-2 no-scrollbar">
