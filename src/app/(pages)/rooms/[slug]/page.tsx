@@ -589,7 +589,7 @@ const Page = () => {
             </div> : null}
             <div className="flex-1 flex flex-col items-start sm:items-center justify-center ">
                 <div className="w-full flex flex-col sm:justify-center justify-start items-center relative">
-                    <div className="w-[57.5%] md:w-[70%] lg:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
+                    <div className="w-[57.5%] md:w-[68.5%] lg:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
 
                         {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-10 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
@@ -636,7 +636,10 @@ const Page = () => {
 
                     {cards?.length ? <MyHand 
                     selectedCards={selectedCards}
-                    cards={cards} 
+                    cards={cards}
+                    discardCard={discardCard}
+                    swapCards={swapCards}
+                    meldCards={meldCards}
                     selectCard={selectCard}/> : null}
                     {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand /> : null}
 
@@ -667,10 +670,7 @@ const Page = () => {
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => swapCards()}>Swap</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => drawCard("top_of_the_deck")}>Draw</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
-                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>
-                        Meld
-                        <div className="sm:hidden">Meld</div>
-                        </p>
+                    <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
             <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
