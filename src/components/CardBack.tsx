@@ -11,7 +11,7 @@ const CardBack = ({className}: {className?: string}) => {
     }, []) 
 
     return (
-        <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 rounded-sm sm:rounded-lg md:rounded-xl border sm:border-2  relative overflow-hidden cursor-pointer", {
+        <div className={cn("w-[3.1rem] h-[4.4rem] sm:w-[4.2rem] sm:h-24 md:w-[7.04rem] lg:w-32  md:h-40 lg:h-44 rounded-sm sm:rounded-lg lg:rounded-xl border sm:border-2  relative overflow-hidden cursor-pointer", {
             "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
             "border-gray-400 bg-[#ffffff]": currentDeck === "white"
         }, className)}>

@@ -589,7 +589,7 @@ const Page = () => {
             </div> : null}
             <div className="flex-1 flex flex-col items-start sm:items-center justify-center ">
                 <div className="w-full flex flex-col sm:justify-center justify-start items-center relative">
-                    <div className="w-[40%] sm:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
+                    <div className="w-[57.5%] md:w-[70%] lg:w-9/12 max-w-[850px] max-h-[600px] relative pt-4">
 
                         {players[1] ? <PlayerBubble avatar={players[1].avatar} playerName={players[1].username} className={`${roomData.currentTurn === players[1].username && 'border-red-400 border-2 shadow-red-glow'} -left-10 sm:-left-20 md:-left-24 lg:-left-28 top-1/2 -translate-y-1/2`}/> : null}
                         
@@ -606,7 +606,7 @@ const Page = () => {
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     
-                    <div className={cn("w-[1.9rem] h-[2.75rem] sm:w-[4.6rem] md:w-[7.04rem] lg:w-32 sm:h-32 md:h-40 lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm sm:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
+                    <div className={cn("w-[1.9rem] h-[2.75rem] sm:w-[4.2rem] sm:h-24 lg:w-32 md:h-32 md:w-[5.36rem] lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm md:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
                         "border-red-500 shadow-red-glow overflow-hidden": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => {
                         if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
@@ -615,12 +615,12 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"-ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0 w-[1.9rem] h-[2.75rem]"}/> : null}
+                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"absolute top-0 left-0 -ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0 w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]"}/> : null}
                         
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
-                            ? "border-red-500 shadow-red-glow w-[1.9rem] h-[2.75rem]" : " w-[1.9rem] h-[2.75rem]"}/>
+                            ? "border-red-500 shadow-red-glow w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]" : " w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]"}/>
                     </div>
                     
             
@@ -644,7 +644,7 @@ const Page = () => {
 
 
                 <div className="w-fit p-1.5 sm:py-2 md:px-3 sm:h-10 bg-[#486581] flex items-center justify-center gap-3 opacity-75 hover:opacity-100 hover:z-50
-                sm:gap-5 fixed left-0 md:bottom-0 top-0 md:mt-auto rounded-br-lg md:rounded-br-none md:rounded-tr-lg sm:rounded-none shadow-sm sm:shadow">
+                sm:gap-5 fixed left-0 md:bottom-0 top-0 lg:mt-auto rounded-br-lg md:rounded-br-none md:rounded-tr-lg sm:rounded-none shadow-sm sm:shadow">
                     <AlertDialog>
                         <AlertDialogTrigger className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer">Leave</AlertDialogTrigger>
                         <AlertDialogContent>

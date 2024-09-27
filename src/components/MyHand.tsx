@@ -44,7 +44,7 @@ const MyHand = ({selectedCards, selectCard, cards}: HandProps) => {
     );
     
     return (
-        <div className={cn("w-full flex items-start justify-center absolute -bottom-7  sm:-bottom-24 md:-bottom-36")}>
+        <div className={cn("w-full flex items-start justify-center absolute -bottom-7  sm:-bottom-16 md:-bottom-32 lg:-bottom-36")}>
             <div className="relative w-fit">
 
             <div className="w-fit h-fit flex justify-center flex-shrink-0 ml-5 sm:ml-10 md:ml-16 lg:ml-20 duration-150 "

@@ -85,7 +85,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
                 </div>
                 {cards?.map((item) => {
                     return <div key={item.meld.id} className="flex z-[70] cursor-pointer pl-5 " onClick={() => addToMeld(item.meld.id, item.cards)} >
-                        {item.cards.map((item) => <div key={item.id} className={cn("-ml-2 sm:-ml-2 w-[2.3rem] h-[3.4rem] sm:w-[4.93rem] sm:h-28 lg:w-[5.63rem] lg:h-32 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
+                        {item.cards.map((item) => <div key={item.id} className={cn("-ml-5 sm:-ml-2 w-[3.52rem] h-[5rem] sm:w-[4.93rem] sm:h-28 lg:w-[5.63rem] lg:h-32 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
             "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
             "border-gray-300 bg-[#ffffff]": currentDeck === "white"
                         })}>
@@ -98,7 +98,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
             <div className={cn("flex items-center justify-evenly cursor-pointer overflow-hidden gap-3", className)} onClick={() => setShowAllMelds(true)}>
             <div className="flex cursor-pointer items-center">
              {cards[0]?.cards && cards[0]?.cards.map((item) => {
-                return <div key={item.id} className={cn("-ml-2 w-[1.76rem] h-[2.5rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
+                return <div key={item.id} className={cn("-ml-3 w-[2.64rem] h-[3.75rem] sm:w-[2.8rem] sm:h-16 md:h-24 md:w-[4.2rem] lg:w-[4.93rem] lg:h-28 rounded-sm md:rounded-md relative overflow-hidden shadow-sm md:shadow border sm:border-2", {
                 "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
                 "border-gray-300 bg-[#ffffff]": currentDeck === "white"
                 })}>
@@ -109,7 +109,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
             </div>
             <div className="hidden sm:flex cursor-pointer ">
              {cards[1]?.cards && cards[1]?.cards.map((item) => {
-                return <div key={item.id} className={cn("-ml-2 w-[1.76rem] h-[2.5rem] sm:w-[4.23rem] sm:h-24 lg:w-[4.93rem] lg:h-28 rounded-sm sm:rounded-md relative overflow-hidden shadow-sm sm:shadow border sm:border-2", {
+                return <div key={item.id} className={cn("-ml-2 w-[2.64rem] h-[3.75rem] sm:w-[2.8rem] sm:h-16 md:h-24 md:w-[4.2rem] lg:w-[4.93rem] lg:h-28 rounded-sm md:rounded-md relative overflow-hidden shadow-sm md:shadow border sm:border-2", {
                     "border-gray-700 bg-[#4d4d4d]": currentDeck === "black",
                 "border-gray-300 bg-[#ffffff]": currentDeck === "white"
                 })}>
@@ -117,7 +117,7 @@ const MeldArea = ({melds, className, gameId, selectedCards, getNewCards, isFetch
                 </div>
              })}
             </div>
-            { cards.length > 2 ? <div className="text-gray-900 text-3xl font-semibold z-40 absolute right-4 hidden sm:block">+{cards.length - 2}</div> : null}
+            { cards.length > 2 ? <div className="text-gray-900 text-3xl font-semibold z-40 absolute right-4">+{cards.length - 2}</div> : null}
         </div>
         </div>
 
