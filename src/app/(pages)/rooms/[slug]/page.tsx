@@ -606,7 +606,7 @@ const Page = () => {
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     
-                    <div className={cn("w-[1.9rem] h-[2.75rem] sm:w-[4.2rem] sm:h-24 lg:w-32 md:h-32 md:w-[5.36rem] lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm md:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
+                    <div className={cn("w-[1.9rem] h-[2.75rem] sm:w-[3.52rem] sm:h-20 lg:w-32 md:h-32 md:w-[5.36rem] lg:h-44 shadow-sm sm:shadow border sm:border-2 border-gray-700 rounded-sm md:rounded-xl cursor-pointer relative translate-x-1.5 sm:translate-x-0", {
                         "border-red-500 shadow-red-glow overflow-hidden": hasDrew && cards.length && roomData.currentTurn === session.data?.user?.name
                     })} onClick={() => {
                         if(!hasDrew && !selectedCards.length && lastDiscartedCard) {
@@ -615,12 +615,12 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"absolute top-0 left-0 -ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0 w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]"}/> : null}
+                        {lastDiscartedCard?.image ? <CardFront card={lastDiscartedCard} className={"absolute top-0 left-0 -ml-0 sm:-ml-0 md:-ml-0 lg:-ml-0 w-[1.9rem] h-[2.75rem] sm:w-[3.52rem] sm:h-20 md:h-32 md:w-[5.36rem]"}/> : null}
                         
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
                         <CardBack className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
-                            ? "border-red-500 shadow-red-glow w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]" : " w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem]"}/>
+                            ? "border-red-500 shadow-red-glow w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem] sm:w-[3.52rem] sm:h-20" : " w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem] sm:w-[3.52rem] sm:h-20"}/>
                     </div>
                     
             
@@ -630,16 +630,19 @@ const Page = () => {
                     </div>}
                     {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea setIsFetching={setIsFetching} isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
-                
+                    
 
                 </TableOptions>
-                {cards?.length ? <MyHand 
+
+                    {cards?.length ? <MyHand 
                     selectedCards={selectedCards}
                     cards={cards} 
                     selectCard={selectCard}/> : null}
                     {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand /> : null}
+
                     </div>
- 
+
+
                 </div>
 
 

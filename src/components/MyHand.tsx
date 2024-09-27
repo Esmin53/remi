@@ -36,6 +36,22 @@ const MyHand = ({selectedCards, selectCard, cards}: HandProps) => {
         }
     };
 
+    useEffect(() => {
+        if (divRef?.current) {
+            const rect = divRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+      
+            if (rect.bottom > viewportHeight) {
+              const intersectingPixels = rect.bottom - viewportHeight;
+              const translateYValue = (intersectingPixels - (rect.height * 0.8)).toFixed(1); // Calculate the value
+      
+              // Set inline style with translateY
+              setIntersectionHeight({ transform: `translateY(-${translateYValue}px)`, transition: 'transform 0.15s' });
+              setMoveCardsUp(prev => true);
+            } 
+          }
+    }, [])
+
     const chevronElement = (
         <div className="fixed bottom-2 right-2 z-50 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-lightblue/50 cursor-pointer flex items-center justify-center" 
             onClick={handleCheckIntersection}>
