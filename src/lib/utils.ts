@@ -76,3 +76,8 @@ export function canIAddToThisMeld({ cards, selectedCard }: { cards: Card[], sele
     }
 
 }
+
+export function playSound(link: string) {
+  const sound = new Audio(`/sounds/${link}`);
+  sound.play();
+}

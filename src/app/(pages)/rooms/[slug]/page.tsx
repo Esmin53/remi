@@ -14,7 +14,7 @@ import { meld } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
-import { allUniqueSymbols, areCardsSequential, cn, getCards, toPusherKey } from "@/lib/utils"
+import { allUniqueSymbols, areCardsSequential, cn, getCards, playSound, toPusherKey } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
@@ -176,7 +176,6 @@ const Page = () => {
         
         try {
             const filteredIds = cards.map((item) => item.id);
-
             let hand = whereFrom === "last_discarted_card" ? [...filteredIds, lastDiscartedCard?.id] : filteredIds;
     
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/game/${roomData.gameId}/draw`, {
@@ -196,7 +195,7 @@ const Page = () => {
                 setLastDiscartedCard(prev => getCards(data.newLastDiscartedCard)[0])
             }
             setCards([...cards, newCard])
-
+            playSound("card_draw.mp3")
 
         } catch (error) {
             toast({
@@ -437,6 +436,7 @@ const Page = () => {
                     setHasDrew(prev => true)
                     setLastDiscartedCard(null)
                     setLastDiscartedCardToDraw(null)
+                    playSound("shuffle.wav")
                 }
 
 
@@ -447,6 +447,7 @@ const Page = () => {
                         ...prev,
                         currentTurn: data.currentTurn
                     }))
+                    playSound("card_drop.wav")
                 }
 
                 if(data.discartedCard && typeof data.discartedCard !== "undefined") {
@@ -468,7 +469,6 @@ const Page = () => {
         
             const meldHandler = (data: {newMeld: Meld,updatedMeld: Meld , playerName: string, selectedCard?: number}) => {
                 
-                console.log("Called", data)
 
                 if(data.newMeld) {
                     setMelds((prevMelds) => ({
@@ -485,13 +485,8 @@ const Page = () => {
                             [data.playerName]: [...tempMelds, data.updatedMeld],
                         };
                     });
-            
-
-                    if(roomData.currentTurn === data.updatedMeld.player) {
-                        console.log("Testt")
-                    }
                 }
-            
+                playSound("card_drop.wav")
             }
     
         pusherClient.bind(`game-meld`, meldHandler)
