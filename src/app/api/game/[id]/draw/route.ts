@@ -35,7 +35,7 @@ export const PUT = async (req: NextRequest, res: Response) => {
             }).where(eq(games.id, parseInt(id)))
 
             await db.update(hand).set({
-                cards: body.hand
+                cards: [...body.hand, card]
             }).where(and(
                 eq(hand.gameId, parseInt(id)),
                 eq(hand.player, session.user.name!)
