@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import { relations } from "drizzle-orm";
 import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
@@ -23,8 +24,11 @@ export const rooms = pgTable("room", {
     allowRandom: boolean("allow_random").default(false),
     ownerName: text("owner_name"),
     background: text("background").notNull(),
+    table: text("table").notNull(),
+    deck: text("deck").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),  
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    lastPinged: timestamp("last_pinged")  
 })
 
 export const roomRelations = relations(rooms, ({ one, many }) => ({

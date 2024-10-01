@@ -2,6 +2,7 @@ import Avatar from "@/components/Avatar";
 import DeckPicker from "@/components/DeckPicker";
 import GameOptions from "@/components/GameOptions";
 import Menu from "@/components/Menu";
+import RoomCreator from "@/components/RoomCreator";
 import TablePicker from "@/components/TablePicker";
 import { rooms, users } from "@/db/schema";
 import authOptions from "@/lib/auth";
@@ -32,8 +33,8 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex-1 flex justify-center relative overflow-hidden" style={{backgroundImage: `url(/homepage.jpeg)`}}>
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-evenly px-2 md:px-4 py-6">
+    <main className="flex-1 flex justify-center relative px-2" style={{backgroundImage: `url(/homepage.jpeg)`}}>
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-evenly px-2 md:px-4 py-6 ">
         <div className=" flex flex-col sm:flex-row lg:flex-col lg:h-full sm:justify-evenly items-center gap-10 sm:items-start w-full lg:w-fit">
          <div className="lg:w-96 flex flex-col lg:flex-row gap-1 md:gap-3 items-center px-2 justify-center">
           <Avatar currentAvatar={user.avatar || null}/>
@@ -43,16 +44,14 @@ export default async function Home() {
               <span className="font-semibold">{user.ownedRoom}</span>{" (your room)"}</Link> : null}
           </div>
          </div>
-         <Menu />
+        <Menu />
         </div>
-        <div className="flex flex-col sm:flex-row lg:flex-col justify-start items-center w-full lg:w-1/3 gap-8">
-        <div className="w-full flex justify-center py-4">
-          <img className="w-60 sm:w-72 md:w-80 lg:w-96" src="/logo01.png" />
-        </div>
-          <div className="flex flex-col gap-4 justify-center items-center w-full">
-            <TablePicker />
-            <DeckPicker />
+        <div className="flex flex-col justify-start items-center sm:w-fit gap-2">
+          <div className="w-full flex flex-col">
+            <h1 className="text-2xl sm:text-3xl font-semibold">Create your own room.</h1>
+            <p className="text-sm sm:text-base">Customize your own room to play with friends, or find players from public lobby.</p>
           </div>
+          <RoomCreator />
         </div>
       </div>
     </main>

@@ -25,6 +25,8 @@ export const GET = async (req: Request, res: Response) => {
             turnOrder: games.turnOrder,
             hasDrew: games.playerDrew,
             background: rooms.background,
+            table: rooms.table,
+            cardSkin: rooms.deck,
             winner: games.winner,
             message: games.message
         }).from(rooms).fullJoin(games, eq(rooms.key, games.roomKey)).where(and(
@@ -53,6 +55,8 @@ export const GET = async (req: Request, res: Response) => {
             background: string | null,
             winner: string | null
             message: string | null
+            table: string | null,
+            cardSkin: string | null,
         } = {
             owner: roomData.owner,
             gameId: roomData.gameId,
@@ -62,6 +66,8 @@ export const GET = async (req: Request, res: Response) => {
             players: playersWithAvatar || [],
             hasDrew: roomData.hasDrew,
             background: roomData.background,
+            table: roomData.table,
+            cardSkin: roomData.cardSkin,
             winner: roomData.winner,
             message: roomData.message
         }

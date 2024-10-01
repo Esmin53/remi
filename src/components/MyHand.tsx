@@ -9,12 +9,13 @@ interface HandProps {
   selectedCards: Card[];
   selectCard: (card: Card) => void;
   cards: Card[];
+  deck: string
   discardCard: () => void
   swapCards: () => void
   meldCards: () => void
 }
 
-const MyHand = ({ selectedCards, selectCard, cards, discardCard, swapCards, meldCards  }: HandProps) => {
+const MyHand = ({ selectedCards, selectCard, cards, discardCard, swapCards, meldCards, deck  }: HandProps) => {
   const [moveCardsUp, setMoveCardsUp] = useState(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const [intersectionHeight, setIntersectionHeight] = useState<{ transform: string; transition: string }>({
@@ -100,7 +101,7 @@ const MyHand = ({ selectedCards, selectCard, cards, discardCard, swapCards, meld
           </div> : null}
           {cards.map((item) => (
             <div key={item.id} className={cn("hover:-my-4 duration-100")} onClick={() => selectCard(item)}>
-              <CardFront card={item}
+              <CardFront card={item} deck={deck}
                 className={selectedCards.find((sc) => item.id === sc.id) ? "border-red-500 -my-2 sm:-my-4 shadow-red-glow" : null} />
             </div>
           ))}
