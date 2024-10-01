@@ -25,12 +25,12 @@ const RoomCreator = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     return (
-        <div className="w-full relative max-w-xl sm:min-h-[30rem] flex flex-col p-2 sm:px-4 gap-2 justify-center items-center bg-[#4d4d4d]/60 rounded-lg border-2 border-gray-700 shadow-lg overflow-hidden">
+        <div className="w-full relative max-w-96 xl:max-w-xl sm:min-h-[30rem] flex flex-col lg:p-2 lg:px-4 gap-2 justify-center items-center lg:bg-[#4d4d4d]/60 rounded-lg lg:border-2 lg:border-gray-700 lg:shadow-lg overflow-hidden">
             {isModalOpen ? <NewRoomForm background={background} table={table} deck={deck}/> : null}
             {isModalOpen ? <X className="fixed top-2 right-2 text-red-500 w-8 h-8 cursor-pointer z-50" onClick={() => setIsModalOpen(false)}/> : null}
-            <div className="relative flex flex-col justify-center items-center h-fit sm:min-h-96 w-full rounded-lg overflow-hidden pb-20 sm:pb-4">
+            <div className="relative flex flex-col justify-center items-center h-fit  w-full rounded-lg overflow-hidden pb-20 sm:pb-24">
                 <Image fill alt="Background" src={`/background/${background}`}/>
-                <Carousel className="w-11/12 sm:w-96">
+                <Carousel className="w-11/12 max-w-96 xl:max-w-xl">
                     <CarouselContent className="">
                     {TABLES.map((item, index) => <CarouselItem className="sm:w-96 relative" key={index} onClick={() => setTable(item)}>
                             {table === item ? 
@@ -43,7 +43,7 @@ const RoomCreator = () => {
                     <CarouselNext className="hidden sm:block right-4 sm:-right-4 w-8 h-8 sm:w-10 sm:h-10"/>
                 </Carousel>
 
-                <Carousel className="w-11/12 sm:w-80 absolute bottom-2">
+                <Carousel className="w-11/12 max-w-80 absolute bottom-2">
                     <CarouselContent className="">
                     {DECKS.map((item, index) => <CarouselItem key={index} onClick={() => setDeck(item)}>
                         <DeckPreview deck={item} chosenDeck={deck} />
@@ -56,7 +56,7 @@ const RoomCreator = () => {
             </div>
             <Carousel className="w-11/12">
                     <CarouselContent className="w-full">
-                    {BACKGROUNDS.map((item, index) => <CarouselItem className="basis-2/3 sm:basis-1/3 relative cursor-pointer" key={index} onClick={() => setBackground(item)}>
+                    {BACKGROUNDS.map((item, index) => <CarouselItem className="basis-2/3 xl:basis-1/3 relative cursor-pointer" key={index} onClick={() => setBackground(item)}>
                             <div className="w-full aspect-video relative rounded-sm overflow-hidden">
                             <Image src={`/background/${item}`} fill alt="Background"/>
                             </div>
@@ -65,7 +65,7 @@ const RoomCreator = () => {
                     <CarouselPrevious className="hidden sm:block -left-4 w-9 h-9"/>
                     <CarouselNext className="hidden sm:block -right-4 w-9 h-9"/>
                 </Carousel>
-            <button className="w-full h-10 sm:h-12 bg-red-500 rounded-md font-medium sm:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>
+            <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>
         </div>
     )
 }

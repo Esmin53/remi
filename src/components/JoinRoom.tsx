@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { JoinRoomValidator, TJoinRoomValidator } from "@/lib/validators/join-room";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -72,18 +72,16 @@ const JoinRoom = () => {
     
 
     return (
-        <div className="absolute w-screen h-screen bg-[#4d4d4d]/85 top-0 left-0 z-50 flex items-center justify-center p-2 duration-75">
-            <form className="w-full flex flex-col gap-2 max-w-96" onSubmit={handleSubmit(onSubmit)}>
-            <p className="text-xl font-medium">Find a new room</p>
-            <div className="h-0.5 w-3/4 bg-lightblue rounded-lg" />
+        <div className="w-full max-w-2xl bg-[#4d4d4d]/50 flex flex-col items-center justify-center p-2 gap-2 border-2 rounded-lg border-gray-700 shadow">
+            <form className="w-full flex gap-2" onSubmit={handleSubmit(onSubmit)}>
             <input className={cn("w-full h-10 px-2 rounded-sm bg-paleblue border-none outline-none text-gray-900 shadow-sm", {
                 "border border-red-400": errors.key
             })}
             placeholder="Room key" {...register("key")}/>
             {errors?.key ? <p className="text-sm text-red-500 font-medium -mt-2">{errors.key.message}</p> : null}
-            <button className="w-full h-10 bg-red-500 hover:bg-red-500/90 shadow rounded-sm font-medium flex items-center justify-center"
+            <button className="w-10 h-10 bg-red-500 hover:bg-red-500/90 shadow rounded-sm font-medium flex items-center justify-center"
                 type="submit">
-                {isLoading ? <Loader2 className="animate-spin"/> : "Join room"}
+                {isLoading ? <Loader2 className="animate-spin"/> : <Check />}
             </button>
             </form>
         </div>

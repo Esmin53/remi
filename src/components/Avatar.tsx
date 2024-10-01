@@ -71,7 +71,7 @@ const Avatar = ({currentAvatar}: AvatarProps ) => {
 
     return (
         <Popover>
-            <PopoverTrigger className="w-28 h-28 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-paleblue border-2 border-lightblue flex items-center justify-center relative
+            <PopoverTrigger className="w-28 h-28 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 rounded-full bg-paleblue border-2 border-lightblue flex items-center justify-center relative
             overflow-hidden">
                 <UserPlus2 className="text-lightblue w-10 h-10 md:w-14 md:h-14 lg:w-20 lg:h-20" />
                 {avatarDisplay ? <Image fill alt="Current Avatar" src={`/avatar/${avatarDisplay}`} className="object-cover"/> : null}
