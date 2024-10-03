@@ -7,6 +7,7 @@ import LoadingHand from "@/components/LoadingHand"
 import MeldArea from "@/components/MeldArea"
 import MyHand from "@/components/MyHand"
 import PlayerBubble from "@/components/PlayerBubble"
+import { useRoomData } from "@/components/RoomProvider"
 import TableOptions from "@/components/TableOptions"
 import GameMenu from "@/components/gamemenu/GameMenu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
@@ -26,7 +27,12 @@ type GroupedMelds = {
     [playerName: string]: Meld[];
   };
 
+
+
 const Page = () => {
+
+    const {background, table, deck, owner} = useRoomData();
+
 
     const session = useSession()
     const key = usePathname().split("/")[2]
@@ -42,20 +48,12 @@ const Page = () => {
         avatar: string | null
     }[] >([])
     const [roomData, setRoomData] = useState<{
-        owner: string
-        background: string
-        table: string
-        deck: string
         gameId: string | null
         gameStatus: string | null
         currentTurn: string | null
         winner: string | null
         message: string | null
     }>({
-        owner: "",
-        background: "",
-        table: "",
-        deck: "",
         gameId: null,
         gameStatus: null ,
         currentTurn: null,
@@ -76,11 +74,7 @@ const Page = () => {
             const data = await response.json()
            
             setRoomData({
-                owner: data.owner,
                 gameId: data.gameId || null,
-                background: data.background,
-                table: data.table,
-                deck: data.cardSkin,
                 gameStatus: data.gameStatus || null,
                 currentTurn: data.currentTurn || null,
                 winner: data.winner || null,
@@ -409,11 +403,7 @@ const Page = () => {
 
                     if(data.gameStatus === "INTERRUPTED" || data.gameStatus === "FINISHED") {
                         setRoomData(prev => ({
-                            owner: prev.owner,
                             gameId: prev.gameId,
-                            background: prev.background,
-                            table: prev.table,
-                            deck: prev.deck,
                             currentTurn: null,
                             gameStatus: data.gameStatus!,
                             winner: data.winner || null,
@@ -522,17 +512,18 @@ const Page = () => {
     }, [roomData.currentTurn])
 
     if(isLoading || session.status === "loading") {
-        return <div className="w-screen h-screen flex items-center justify-center">
-            <CardBack className="animate-pulse xl:w-32" deck="black" />
+        return <div className="w-screen h-screen flex items-center justify-center relative">
+            <TableOptions table={table}>
+                <CardBack className="animate-pulse xl:w-32" deck={deck} />
+            </TableOptions>
         </div>
     }
 
     if(roomData.gameStatus !== 'IN_PROGRESS') {
-        return <div className="flex-1 flex gap-2 bg-cover" style={{
-            backgroundImage: `url(/background/${roomData.background})`}}>
+        return <div className="flex-1 flex gap-2 bg-cover" >
                 <div className="flex-1 flex items-center justify-center">
        <div className="w-8/12 sm:w-9/12 max-w-[850px] max-h-[600px] relative">
-            <TableOptions table={roomData.table}>
+            <TableOptions table={table}>
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-6 text-center">
                 {roomData.winner && (
                     <p className="text-sm font-medium sm:text-xl md:text-3xl lg:text-4xl md:font-semibold bg-gradient-to-r from-pink-400 via-purple-300 to-blue-500 bg-clip-text text-transparent">
@@ -560,7 +551,7 @@ const Page = () => {
                     </h1>
                 )}
 
-                {session.data?.user?.name === roomData?.owner ? (
+                {session.data?.user?.name === owner ? (
                     <h1
                     className="text-md font-medium sm:text-xl md:text-2xl lg:text-3xl sm:font-semibold text-white cursor-pointer z-40 bg-gradient-to-r from-pink-400 via-purple-300 to-blue-300 px-2 py-1 sm:p-2 lg:p-3 rounded-lg shadow-lg hover:-translate-y-1 duration-300"
                     onClick={() => startGame()}
@@ -578,13 +569,12 @@ const Page = () => {
         </div>
                 </div>
  
-        <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
+        <GameMenu currentTurn={roomData.currentTurn} owner={owner!} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div> 
     }
 
     return (
-        <div className="flex-1 flex bg-cover relative overflow-hidden" style={{
-            backgroundImage: `url(/background/${roomData.background})`}}>
+        <div className="flex-1 flex bg-cover relative overflow-hidden">
             {isFetching ? <div className="absolute w-7 h-7 sm:w-12 sm:h-12 top-10 md:top-6 left-2 animate-bounce">
                 <div className="relative w-full h-full">
                     <Image fill alt="Cards icon" src='/cards.png'/>
@@ -600,12 +590,12 @@ const Page = () => {
                         
                         {players[2] ? <PlayerBubble avatar={players[2].avatar} playerName={players[2].username} className={`${roomData.currentTurn === players[2].username && 'border-red-400 border-2 shadow-red-glow'} -right-10 sm:-right-20 md:-right-24 lg:-right-28 top-1/2 -translate-y-1/2`}/> : null}
 
-                        <TableOptions table={roomData.table}>
-                        {players[0] && melds[players[0].username] && <MeldArea deck={roomData.deck} isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
+                        <TableOptions table={table}>
+                        {players[0] && melds[players[0].username] && <MeldArea deck={deck} isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} melds={melds[players[0].username]} gameId={roomData.gameId} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] absolute top-0 left-1/2 -translate-x-1/2 rotate-160"/>}
-                        {players[1] && melds[players[1].username] ? <MeldArea deck={roomData.deck} isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
+                        {players[1] && melds[players[1].username] ? <MeldArea deck={deck} isFetching={isFetching} setIsFetching={setIsFetching}  getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[1].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[27.5%]" /> : null}
-                        {players[2] && melds[players[2].username] ? <MeldArea deck={roomData.deck} isFetching={isFetching} setIsFetching={setIsFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
+                        {players[2] && melds[players[2].username] ? <MeldArea deck={deck} isFetching={isFetching} setIsFetching={setIsFetching} getNewCards={updateCards} gameId={roomData.gameId} melds={melds[players[2].username]} selectedCards={selectedCards}
                         className="w-2/4 h-[30%] rotate-90 absolute right-0 top-1/2 -translate-y-1/2 translate-x-[27.5%]" /> : null}
                     
                     
@@ -618,34 +608,34 @@ const Page = () => {
                             discardCard()
                         }
                     }}>
-                        {lastDiscartedCard?.image ? <Image fill alt="Last discarted card" src={`/cards/${roomData.deck}/${lastDiscartedCard.image}`}/>: null}
+                        {lastDiscartedCard?.image ? <Image fill alt="Last discarted card" src={`/cards/${deck}/${lastDiscartedCard.image}`}/>: null}
                         
                     </div>
                     <div onClick={() => drawCard("top_of_the_deck")} className="-translate-x-1.5 sm:-translate-x-0">
-                        <CardBack deck={roomData.deck} className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
+                        <CardBack deck={deck} className={roomData.currentTurn === session.data?.user?.name && !hasDrew && cards.length !== 15 && cards.length !== 0 
                             ? "border-red-500 shadow-red-glow w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem] sm:w-[3.52rem] sm:h-20" : " w-[1.9rem] h-[2.75rem] md:h-32 md:w-[5.36rem] sm:w-[3.52rem] sm:h-20"}/>
                     </div>
                     
             
                     {roomData.gameStatus === "IN_PROGRESS"  && cards.length === 0 && <div className="absolute bottom-2" 
                     onClick={() => getMyCards()}>
-                        {!isFetching ? <CardBundle deck={roomData.deck}/> : null}
+                        {!isFetching ? <CardBundle deck={deck}/> : null}
                     </div>}
-                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea deck={roomData.deck} setIsFetching={setIsFetching} isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
+                    {cards.length !== 0 && melds[session.data?.user?.name!] && <MeldArea deck={deck} setIsFetching={setIsFetching} isFetching={isFetching} getNewCards={updateCards} gameId={roomData.gameId} selectedCards={selectedCards}
                     melds={melds[session.data?.user?.name!]} className="w-2/4 h-[30%] absolute bottom-0 left-1/2 -translate-x-1/2"/>}
                     
 
                 </TableOptions>
 
                     {cards?.length ? <MyHand
-                    deck={roomData.deck} 
+                    deck={deck} 
                     selectedCards={selectedCards}
                     cards={cards}
                     discardCard={discardCard}
                     swapCards={swapCards}
                     meldCards={meldCards}
                     selectCard={selectCard}/> : null}
-                    {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand deck={roomData.deck} /> : null}
+                    {!roomData.winner && isFetching && cards.length === 0 ? <LoadingHand deck={deck} /> : null}
 
                     </div>
 
@@ -677,7 +667,7 @@ const Page = () => {
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
-            <GameMenu currentTurn={roomData.currentTurn} owner={roomData.owner} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
+            <GameMenu currentTurn={roomData.currentTurn} owner={owner!} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div>
     )
 }

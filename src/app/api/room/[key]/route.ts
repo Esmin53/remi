@@ -17,16 +17,12 @@ export const GET = async (req: Request, res: Response) => {
         const key = pathname.split("/")[3]
     
         const [roomData] = await db.select({
-            owner: rooms.ownerName,
             gameId: games.id,
             gameStatus: games.gameStatus,
             deck: games.deck,
             currentTurn: games.currentTurn,
             turnOrder: games.turnOrder,
             hasDrew: games.playerDrew,
-            background: rooms.background,
-            table: rooms.table,
-            cardSkin: rooms.deck,
             winner: games.winner,
             message: games.message
         }).from(rooms).fullJoin(games, eq(rooms.key, games.roomKey)).where(and(
@@ -42,7 +38,6 @@ export const GET = async (req: Request, res: Response) => {
         ))
 
         let data: {
-            owner: string | null,
             gameId: number | null,
             gameStatus: string | null,
             currentTurn: string | null,
@@ -52,22 +47,15 @@ export const GET = async (req: Request, res: Response) => {
                 avatar: string | null
             }[],
             hasDrew: boolean | null,
-            background: string | null,
             winner: string | null
             message: string | null
-            table: string | null,
-            cardSkin: string | null,
         } = {
-            owner: roomData.owner,
             gameId: roomData.gameId,
             gameStatus: roomData.gameStatus,
             currentTurn: roomData.currentTurn,
             deck: null,
             players: playersWithAvatar || [],
             hasDrew: roomData.hasDrew,
-            background: roomData.background,
-            table: roomData.table,
-            cardSkin: roomData.cardSkin,
             winner: roomData.winner,
             message: roomData.message
         }
