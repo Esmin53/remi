@@ -10,6 +10,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const revalidate = 0;
+
 export default async function Home() {
   
   const session = await getServerSession(authOptions)
@@ -18,16 +20,22 @@ export default async function Home() {
     redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/wellcome`)
   }
 
-  const [user] = await db.select({
+  const [{currentRoom, avatar, ownedRoom, background, table, deck, allowRandom}] = await db.select({
     username: users.username,
     currentRoom: users.roomKey,
     ownedRoom: rooms.key,
-    avatar: users.avatar
+    avatar: users.avatar,
+    background: rooms.background,
+    table: rooms.table,
+    deck: rooms.deck,
+    allowRandom: rooms.allowRandom
   }).from(users).where(eq(users.username, session?.user?.name!)).leftJoin(rooms, eq(users.username, rooms.ownerName))
 
-  if(user?.currentRoom) {
-    redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${user?.currentRoom}`)
+  if(currentRoom) {
+    redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${currentRoom}`)
   }
+
+  console.log(ownedRoom, avatar)
 
   return (
     <main className="flex-1 flex justify-center relative px-2" style={{backgroundImage: `url(/homepage.jpeg)`}}>
@@ -45,7 +53,7 @@ export default async function Home() {
                 <JoinRoom />
               </div>
               <div className="flex flex-col justify-center items-center lg:w-64 ">
-                <Avatar currentAvatar={user.avatar || null}/>
+                <Avatar currentAvatar={avatar || null}/>
                 <h1 className="text-xl lg:text-2xl font-semibold lg:font-bold">{session?.user?.name}</h1>
               </div>
             </div>
@@ -67,7 +75,12 @@ export default async function Home() {
             <h1 className="text-2xl sm:text-3xl font-semibold">Create your own room.</h1>
             <p className="text-sm sm:text-base">Customize your own room to play with friends, or find players from public lobby.</p>
           </div>
-          <RoomCreator />
+          <RoomCreator 
+            roomKey={ownedRoom || null} 
+            currentBackground={background}
+            currentTable={table}
+            currentDeck={deck}
+            allowRandom={allowRandom}/>
         </div>
           </div>
 

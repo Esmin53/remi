@@ -53,3 +53,48 @@ export const DELETE = async (req: NextRequest, res: NextResponse) => {
         return new NextResponse(JSON.stringify({message: "Failed"}), { status: 500 })
     }
 }
+
+export const PATCH = async (req: NextRequest, res: NextResponse) => {
+    try {
+        const session = await getServerSession(authOptions)
+
+        if(!session?.user || !session.user.name) {
+            return new NextResponse(JSON.stringify({ message: "Unauthorized!"}), { status: 401 })
+        }
+
+        const url = new URL(req.url)
+        const { pathname } = url
+        const key = pathname.split("/")[3] as string
+
+        const { background, table, deck, allowRandom } = await req.json();
+
+        const [room] = await db.select({
+            key: rooms.key,
+            owner: rooms.ownerName,
+            background: rooms.background,
+            table: rooms.table,
+            deck: rooms.deck,
+            allowRandom: rooms.allowRandom
+        }).from(rooms).where(eq(rooms.key, key))
+
+        if(!room) {
+            return new NextResponse(JSON.stringify({ message: "No such room"}), { status: 404 })
+        }
+
+        if(session.user.name !== room.owner) {
+            return new NextResponse(JSON.stringify({ message: "Unauthorized"}), { status: 401 })
+        }
+
+        await db.update(rooms).set({
+            background,
+            table,
+            deck,
+            allowRandom
+        }).where(eq(rooms.key, room.key))
+
+
+        return new NextResponse(JSON.stringify({message: "Success"}), { status: 200 })
+    } catch (error) {
+        return new NextResponse(JSON.stringify({message: "Failed"}), { status: 500 })
+    }
+}

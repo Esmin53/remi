@@ -10,27 +10,84 @@ import {
     CarouselNext,
     CarouselPrevious,
   } from "@/components/ui/carousel"
-import { Circle, CircleCheck, Trash2, X } from "lucide-react";
+import { Circle, CircleCheck, Loader2, Trash2, X } from "lucide-react";
 import NewRoomForm from "./NewRoomForm";
 import DeckPreview from "./DeckPreview";
+import { Switch } from "./ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const BACKGROUNDS = ["bg01.jpg", "bg02.jpg", "bg03.jpg", "bg04.jpg", "bg05.jpg", "bg06.jpg"];
 const TABLES = ["red.jpg", "blue.jpg", "green.jpg", "purple.jpg", "dark_blue.jpg"]
-const DECKS = ["black", "white"]
+const DECKS = ["white", "black"]
 
-const RoomCreator = () => {
-    const [background, setBackground] = useState("bg06.jpg")
-    const [table, setTable] = useState("red.jpg")
-    const [deck, setDeck] = useState("white")
+interface RoomCreatorProps {
+    roomKey: string | null,
+    currentBackground: string | null,
+    currentTable: string | null,
+    currentDeck: string | null,
+    allowRandom: boolean | null
+}
+
+const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, allowRandom}: RoomCreatorProps) => {
+    const [background, setBackground] = useState(currentBackground || "bg06.jpg")
+    const [table, setTable] = useState(currentTable || "red.jpg")
+    const [deck, setDeck] = useState(currentDeck || "white")
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isAllowRandom, setIsAllowRandom] = useState(allowRandom || false)
+    const [isUpdating, setIsUpdating] = useState(false)
+
+    const {toast} = useToast()
+    const router = useRouter()
+
+    const updateRoom = async () => {
+        if(isUpdating) return
+        setIsUpdating(true)
+        try {
+            if(background === currentBackground &&
+                table === currentTable &&
+                deck === currentDeck && 
+                isAllowRandom == allowRandom
+            ) return
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${roomKey}/owner`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    background,
+                    table,
+                    deck,
+                    isAllowRandom
+                })
+            })
+
+            if(response.ok) {
+                toast({
+                    title: "Room updated succesfully",
+                    description: "Your room was succesfully updated.",
+                    variant: "default"
+                })
+            }
+
+        } catch (error) {
+            toast({
+                title: "Room updating failed",
+                description: "Something went wrong and your room couldn't be updated. Please check your internet connection and try again.",
+                variant: "destructive"
+            })
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
 
     return (
         <div className="w-full relative max-w-96 xl:max-w-xl sm:min-h-[30rem] flex flex-col lg:p-2 lg:px-4 gap-2 justify-center items-center lg:bg-[#4d4d4d]/60 rounded-lg lg:border-2 lg:border-gray-700 lg:shadow-lg overflow-hidden">
             {isModalOpen ? <NewRoomForm background={background} table={table} deck={deck}/> : null}
             {isModalOpen ? <X className="fixed top-2 right-2 text-red-500 w-8 h-8 cursor-pointer z-50" onClick={() => setIsModalOpen(false)}/> : null}
+            <h1 className="text-2xl font-semibold top-1 left-1.5 z-40">{roomKey}</h1>
             <div className="relative flex flex-col justify-center items-center h-fit  w-full rounded-lg overflow-hidden pb-20 sm:pb-24">
                 <Image fill alt="Background" src={`/background/${background}`}/>
-                <Carousel className="w-11/12 max-w-96 xl:max-w-xl">
+                <Carousel className="w-11/12 max-w-96 xl:max-w-xl" opts={{loop: true}}>
                     <CarouselContent className="">
                     {TABLES.map((item, index) => <CarouselItem className="sm:w-96 relative" key={index} onClick={() => setTable(item)}>
                             {table === item ? 
@@ -59,13 +116,23 @@ const RoomCreator = () => {
                     {BACKGROUNDS.map((item, index) => <CarouselItem className="basis-2/3 xl:basis-1/3 relative cursor-pointer" key={index} onClick={() => setBackground(item)}>
                             <div className="w-full aspect-video relative rounded-sm overflow-hidden">
                             <Image src={`/background/${item}`} fill alt="Background"/>
-                            </div>
-                        </CarouselItem>)}
-                    </CarouselContent>
-                    <CarouselPrevious className="hidden sm:block -left-4 w-9 h-9"/>
-                    <CarouselNext className="hidden sm:block -right-4 w-9 h-9"/>
-                </Carousel>
-            <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>
+                        </div>
+                    </CarouselItem>)}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:block -left-4 w-9 h-9"/>
+                <CarouselNext className="hidden sm:block -right-4 w-9 h-9"/>
+            </Carousel>
+            {roomKey ? <div className="flex gap-2 justify-start w-full py-1">
+                     <Switch checked={isAllowRandom} onCheckedChange={() => setIsAllowRandom(prev => !prev)} /> 
+                    <p>Allow random players to join your room</p>
+                </div> : null}
+            {
+                roomKey ?
+                <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg flex items-center justify-center" onClick={() => updateRoom()}>
+                    {isUpdating ? <Loader2 className="animate-spin"/> : "Update Room"}
+                </button> :
+                <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>
+                }
         </div>
     )
 }

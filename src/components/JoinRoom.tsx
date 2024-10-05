@@ -55,6 +55,7 @@ const JoinRoom = () => {
 
             if(data.key) {
                 router.push(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${data.key}`)
+                router.refresh()
             }
 
             setIsLoading(false)
