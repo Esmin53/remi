@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { CARDS, Card } from "@/lib/cards"
 import { pusherClient } from "@/lib/pusher"
 import { allUniqueSymbols, areCardsSequential, cn, getCards, playSound, toPusherKey } from "@/lib/utils"
+import { ArrowRight, ChevronRight } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
@@ -146,6 +147,14 @@ const Page = () => {
             setIsFetching((prev) => false)
         }
     }
+    
+    const autoSort = () => {
+         let temp = cards
+        
+        temp = temp.sort((a, b) => Number(a.value) - Number(b.value))
+
+        setCards(prev => [...temp])
+      };
 
     const selectCard = (card: Card) => {
         if (selectedCards.find(item => item.id === card.id)) {
@@ -667,6 +676,10 @@ const Page = () => {
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
                 </div>
             </div>
+            {cards.length ? <div className="fixed bottom-36 md:bottom-40 line-clamp-1 text-black font-semibold right-2 z-50 w-8 h-8 md:h-10 md:w-10 rounded-full 
+            bg-lightblue/50 cursor-pointer flex items-center justify-center text-sm md:text-base" onClick={() => autoSort()}>
+                <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 -mr-1" />K
+            </div> : null}
             <GameMenu currentTurn={roomData.currentTurn} owner={owner!} gameId={roomData.gameId} gameStatus={roomData.gameStatus}/>
         </div>
     )
