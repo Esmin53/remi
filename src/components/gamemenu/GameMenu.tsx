@@ -35,6 +35,7 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
 
             if(response.ok && response.status === 200) {
                 router.push("/");
+                router.refresh();
             }
 
         } catch (error) {

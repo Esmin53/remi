@@ -1,50 +1,125 @@
 "use client"
 
-import { Heart, X } from "lucide-react";
-import { useState } from "react";
-import JoinRoom from "./JoinRoom";
-import NewRoomForm from "./NewRoomForm";
-import { signOut } from "next-auth/react";
 import Image from "next/image";
+import Avatar from "./Avatar";
+import {  Code2, LogOut, LucideImage } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
+import Rooms from "./Rooms";
+import RoomCreator from "./RoomCreator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { cn } from "@/lib/utils";
  
-const Menu = () => {
-    const [showRoomKeyForm, setShowRoomKeyForm] = useState<boolean >(false)
+interface MenuProps {
+    currentAvatar: string | null
+    currentUser: string | null | undefined
+    roomKey: string | null,
+    currentBackground: string | null,
+    currentTable: string | null,
+    currentDeck: string | null,
+    allowRandom: boolean | null
+}
 
+const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTable, currentDeck, allowRandom}: MenuProps) => {
+    const [menu, setMenu] = useState("rooms")
 
     return (
-          <div className="flex flex-row-reverse sm:flex-row justify-start sm:justify-center w-screen sm:w-full overflow-x-auto sm:overflow-visible p-2 gap-3 no-scrollbar">
-            {showRoomKeyForm ? <div className="absolute top-2 right-2 z-[56] cursor-pointer" onClick={() => {
-                setShowRoomKeyForm(false)
-
-            }}>
-                <X className="text-red-500 w-7 h-7" />
-            </div> : null} 
-            {showRoomKeyForm ? <JoinRoom /> : null}
-            {/*showNewRoomForm ? <NewRoomForm /> : null*/}
-            <div className=" flex-shrink-0 w-36 sm:w-40 sm:h-52 md:w-44 md:h-56 xl:w-52 h-44 xl:h-64 rounded-md sm:rounded-lg bg-[#4d4d4d] border sm:border-2 border-red-500 shadow-red-glow relative overflow-hidden cursor-pointer 
-            sm:-rotate-12 z-10 hover:shadow-brighter-red-glow duration-100 flex items-center justify-center sm:hover:-translate-x-8 sm:hover:-translate-y-12"
-            onClick={() => signOut({callbackUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/wellcome`})}>
-                <Image src='/icns/hearts.png' alt="Heart Icon" width={24} height={24} className="absolute left-1 sm:left-2 top-1 sm:top-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <Image src='/icns/hearts.png' alt="Heart Icon" width={24} height={24} className="absolute right-1 sm:right-2 bottom-1 sm:bottom-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <p className="sm:text-xl font-medium sm:font-semibold text-red-500 text-center">Sign
-                <br />Out</p>
+          <div className="flex-1 flex flex-col">
+            <div className="w-full h-16 px-6 lg:px-16 flex items-center justify-center pt-1">
+                <div className="relative h-full aspect-video">
+                    <Image fill alt="Logo" src="/logo01.png"/>
+                </div>
+                <div className="cursor-pointer ml-auto">
+                    <span className="text-4xl font-bold">?</span>
+                </div>
             </div>
+            <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col">
+                {menu === "rooms" ? <Rooms /> : null}
+                {/* CREATE SOLO GAME MODE */}
+                {menu === "solo-game" ? <h1>Solo Game will be implemented soon</h1> : null}
+                {menu === "edit-room" ?
+                    <RoomCreator 
+                           roomKey={roomKey || null} 
+                           currentBackground={currentBackground}
+                           currentTable={currentTable}
+                           currentDeck={currentDeck}
+                           allowRandom={allowRandom}/>
+                            : null  }
 
-            <div className="flex-shrink-0 w-36 sm:w-40 sm:h-52  md:w-44 md:h-56 xl:w-52 h-44 xl:h-64 rounded-md sm:rounded-lg lg:rounded-lg bg-[#4d4d4d] border sm:border-2 border-red-500 shadow-red-glow relative overflow-hidden cursor-pointer sm:-ml-12  sm:rotate-12 sm:-translate-y-5 z-30
-            hover:shadow-brighter-red-glow duration-100 flex items-center justify-center sm:hover:-translate-x-12 sm:hover:-translate-y-12 hover:rotate-[5deg]"
-            onClick={() => setShowRoomKeyForm(true)}>
-                <Image src='/icns/spades.png' alt="Heart Icon" width={24} height={24} className="absolute left-1 sm:left-2 top-1 sm:top-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <Image src='/icns/spades.png' alt="Heart Icon" width={24} height={24} className="absolute right-1 sm:right-2 bottom-1 sm:bottom-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <p className="sm:text-xl font-medium sm:font-semibold text-red-500 text-center">Enter <br /> room 
-                <br />key</p>
+
             </div>
-            <div className="flex-shrink-0 w-36 sm:w-40 sm:h-52 md:w-44 md:h-56 xl:w-52 h-44 xl:h-64 rounded-md sm:rounded-lg lg:rounded-lg bg-[#4d4d4d] border sm:border-2 border-red-500 shadow-red-glow relative overflow-hidden cursor-pointer 
-            hover:shadow-brighter-red-glow duration-100 sm:-ml-16 sm:rotate-[20deg] z-40 sm:translate-y-6 flex justify-center items-center sm:hover:-translate-x-5 
-            sm:hover:-translate-y-4 hover:rotate-[8deg]">
-                <Image src='/icns/clubs.png' alt="Heart Icon" width={24} height={24} className="absolute left-1 sm:left-2 top-1 sm:top-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <Image src='/icns/clubs.png' alt="Heart Icon" width={24} height={24} className="absolute right-1 sm:right-2 bottom-1 sm:bottom-2 w-6 sm:w-10 h-5 sm:h-10"/>
-                <p className="sm:text-xl font-medium sm:font-semibold text-red-500 text-center">Find a 
-                    <br />room</p>
+            <div className="w-full py-2 px-2 sm:px-6 lg:px-16 flex flex-col sm:flex-row  flex-wrap items-center bg-red-900/50 sticky bottom-0 z-50 space-y-4">
+                <div className="flex flex-col md:flex-row items-center md:gap-2 justify-center">
+                    <Avatar currentAvatar={currentAvatar} />
+                    <h2 className="text-lg md:text-2xl font-semibold">{currentUser}</h2>
+                </div>
+                <div className="hidden md:flex h-fit mx-6 min-h-[1em] w-[1.5px] self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
+                <ul className="flex px-2 sm:px-3 lg:px-4 gap-1 sm:gap-2 lg:gap-3 lg:text-lg font-semibold duration-100">
+                    <li className={cn("cursor-pointer duration-100", {
+                        "-translate-y-3 text-lg md:text-xl lg:text-2xl font-bold duration-100": menu === "rooms"
+                    }) } onClick={() => setMenu("rooms")}>Find Room</li>
+                    <div className="h-full mx-6 min-h-[1em] w-px self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
+                    <li className={cn("cursor-pointer duration-100", {
+                        "-translate-y-3 text-lg md:text-xl lg:text-2xl font-bold duration-100": menu === "edit-room"
+                    }) } onClick={() => setMenu("edit-room")}>My Room</li>
+                    <div className="h-full mx-6 min-h-[1em] w-px self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
+                    <li className={cn("cursor-pointer duration-100", {
+                        "-translate-y-3 text-lg md:text-xl lg:text-2xl font-bold duration-100": menu === "solo-game"
+                    }) } onClick={() => setMenu("solo-game")}>Solo game</li>
+                    <div className="h-full mx-6 min-h-[1em] w-px self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
+                </ul>
+                <div className="ml-auto flex items-center gap-2 md:gap-4" >
+                <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow">
+                            <LucideImage className="w-6 h-6"/>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                            <p>Assets</p>
+                            </TooltipContent>
+                         </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center">
+                                <Code2 className="w-6 h-6"/>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                            <p>Developer information</p>
+                            </TooltipContent>
+                         </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow">
+                                <a target="_blank" href="https://github.com/Esmin53/remi" className="w-7 h-7 relative ">
+                                    <Image fill alt="Github logo" src={"/icns/github.png"}/>
+                                </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                            <p>Github Repository</p>
+                            </TooltipContent>
+                         </Tooltip>
+                    </TooltipProvider>
+                    {/*
+                    <a target="_blank" href="https://icons8.com/icon/62856/github">GitHub</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a> */}
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow">
+                                <a target="_blank" href="https://github.com/Esmin53" className="w-6 h-6 relative">
+                                    <Image fill alt="App logo" src={"/icon.ico"}/>
+                                </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                            <p>Developed by esmin53</p>
+                            </TooltipContent>
+                         </Tooltip>
+                    </TooltipProvider>
+                    <div className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow cursor-pointer"
+                    onClick={() => signOut({redirect: true, callbackUrl: `${process.env.NEXT_PUBLIC_SERVER_URL}/wellcome`})}>
+                        <LogOut className="w-6 h-6"/>
+                    </div>
+                </div>
             </div>
           </div>
 

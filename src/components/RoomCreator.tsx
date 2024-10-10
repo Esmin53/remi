@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Table from "./Table";
-import { useState } from "react";
+import React, { Suspense, useState } from "react";
 import {
     Carousel,
     CarouselContent,
@@ -10,12 +10,12 @@ import {
     CarouselNext,
     CarouselPrevious,
   } from "@/components/ui/carousel"
-import { Circle, CircleCheck, Loader2, Trash2, X } from "lucide-react";
-import NewRoomForm from "./NewRoomForm";
+import { Circle, CircleCheck, Loader2, X } from "lucide-react";
 import DeckPreview from "./DeckPreview";
 import { Switch } from "./ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import NewRoomForm from "./NewRoomForm";
 
 const BACKGROUNDS = ["bg01.jpg", "bg02.jpg", "bg03.jpg", "bg04.jpg", "bg05.jpg", "bg06.jpg"];
 const TABLES = ["red.jpg", "blue.jpg", "green.jpg", "purple.jpg", "dark_blue.jpg"]
@@ -81,12 +81,17 @@ const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, all
 
 
     return (
-        <div className="w-full relative max-w-96 xl:max-w-xl sm:min-h-[30rem] flex flex-col lg:p-2 lg:px-4 gap-2 justify-center items-center lg:bg-[#4d4d4d]/60 rounded-lg lg:border-2 lg:border-gray-700 lg:shadow-lg overflow-hidden">
-            {isModalOpen ? <NewRoomForm background={background} table={table} deck={deck}/> : null}
-            {isModalOpen ? <X className="fixed top-2 right-2 text-red-500 w-8 h-8 cursor-pointer z-50" onClick={() => setIsModalOpen(false)}/> : null}
-            <h1 className="text-2xl font-semibold top-1 left-1.5 z-40">{roomKey}</h1>
+        <div className="flex-1 flex flex-col md:flex-row gap-6">
+            <div className="flex-1 h-fit py-4 px-2 relative rounded-lg overflow-hidden flex flex-col items-center justify-center">
+            <h1 className="text-2xl font-semibold top-1 left-1.5 z-40 absolute">{roomKey}</h1>
+                <Image alt="Background" fill src={`/background/${background}`}/>
+                <Table className="md:w-11/12 lg:w-10/12 mx-auto" color={table}/>
+                <DeckPreview deck={deck} />
+            </div>
+            <div className="w-full relative md:max-w-96 xl:max-w-xl  flex flex-col lg:p-2 lg:px-4 gap-2 justify-center items-center overflow-hidden">
+            {isModalOpen ? <NewRoomForm background={background} table={table} deck={deck} /> : null}
+            {isModalOpen ? <X className="fixed top-2 right-2 text-red-500 w-8 h-8 cursor-pointer z-[60]" onClick={() => setIsModalOpen(false)}/> : null}
             <div className="relative flex flex-col justify-center items-center h-fit  w-full rounded-lg overflow-hidden pb-20 sm:pb-24">
-                <Image fill alt="Background" src={`/background/${background}`}/>
                 <Carousel className="w-11/12 max-w-96 xl:max-w-xl" opts={{loop: true}}>
                     <CarouselContent className="">
                     {TABLES.map((item, index) => <CarouselItem className="sm:w-96 relative" key={index} onClick={() => setTable(item)}>
@@ -113,9 +118,9 @@ const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, all
             </div>
             <Carousel className="w-11/12">
                     <CarouselContent className="w-full">
-                    {BACKGROUNDS.map((item, index) => <CarouselItem className="basis-2/3 xl:basis-1/3 relative cursor-pointer" key={index} onClick={() => setBackground(item)}>
+                    {BACKGROUNDS.map((item, index) => <CarouselItem className="basis-2/3 relative cursor-pointer" key={index} onClick={() => setBackground(item)}>
                             <div className="w-full aspect-video relative rounded-sm overflow-hidden">
-                            <Image src={`/background/${item}`} fill alt="Background"/>
+                            <Image src={`/background/${item}`} fill alt="Background" loading="lazy"/>
                         </div>
                     </CarouselItem>)}
                 </CarouselContent>
@@ -134,7 +139,8 @@ const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, all
                 <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>
                 }
         </div>
+        </div>
     )
 }
 
-export default RoomCreator;
+export default React.memo(RoomCreator);

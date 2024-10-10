@@ -100,7 +100,7 @@ const NewRoomForm = ({background, table, deck}: NewRoomProps) => {
       };
 
     return (
-        <div className="fixed w-screen h-screen bg-[#4d4d4d]/85 top-0 left-0 z-50 flex items-center justify-center p-2 duration-75">
+        <div className="fixed w-screen h-screen bg-[#4d4d4d]/85 top-0 left-0 z-[60] flex items-center justify-center p-2 duration-75">
         <form className="w-full max-w-xl py-2 pb-4" onSubmit={handleSubmit(onSubmit)}>
 
             

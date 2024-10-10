@@ -50,6 +50,7 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                         variant: "destructive"
                     })
                     router.push("/")
+                    router.refresh()
                     return
                 }
 
@@ -60,6 +61,7 @@ const Players = ({ owner, currentTurn, gameId, gameStatus }: PlayersProps) => {
                         variant: "destructive"
                     })
                     router.push("/")
+                    router.refresh()
                 }
                 
                 setPlayers(updatedPlayers)

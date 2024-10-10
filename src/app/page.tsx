@@ -1,13 +1,12 @@
 import Avatar from "@/components/Avatar";
 import JoinRoom from "@/components/JoinRoom";
+import Menu from "@/components/Menu";
 import RoomCreator from "@/components/RoomCreator";
 import { rooms, users } from "@/db/schema";
 import authOptions from "@/lib/auth";
 import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
-import Image from "next/image";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const revalidate = 0;
@@ -35,7 +34,16 @@ export default async function Home() {
     redirect(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${currentRoom}`)
   }
 
-  console.log(ownedRoom, avatar)
+  if(true) {
+    return <main className="flex-1 flex justify-center relative" style={{backgroundImage: `url(/table/red.jpg)`}}>
+        <Menu currentAvatar={avatar} currentUser={session.user.name}
+                   roomKey={ownedRoom || null} 
+                   currentBackground={background}
+                   currentTable={table}
+                   currentDeck={deck}
+                   allowRandom={allowRandom}/>
+      </main>
+  }
 
   return (
     <main className="flex-1 flex justify-center relative px-2" style={{backgroundImage: `url(/homepage.jpeg)`}}>
