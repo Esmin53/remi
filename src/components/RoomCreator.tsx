@@ -85,7 +85,7 @@ const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, all
             <div className="flex-1 h-fit py-4 px-2 relative rounded-lg overflow-hidden flex flex-col items-center justify-center">
             <h1 className="text-2xl font-semibold top-1 left-1.5 z-40 absolute">{roomKey}</h1>
                 <Image alt="Background" fill src={`/background/${background}`}/>
-                <Table className="md:w-11/12 lg:w-10/12 mx-auto" color={table}/>
+                <Table className="md:w-11/12 lg:w-9/12 mx-auto" color={table}/>
                 <DeckPreview deck={deck} />
             </div>
             <div className="w-full relative md:max-w-96 xl:max-w-xl  flex flex-col lg:p-2 lg:px-4 gap-2 justify-center items-center overflow-hidden">
@@ -133,7 +133,7 @@ const RoomCreator = ({roomKey, currentBackground, currentTable, currentDeck, all
                 </div> : null}
             {
                 roomKey ?
-                <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg flex items-center justify-center" onClick={() => updateRoom()}>
+                <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg flex items-center justify-center shadow-lg" onClick={() => updateRoom()}>
                     {isUpdating ? <Loader2 className="animate-spin"/> : "Update Room"}
                 </button> :
                 <button className="w-full h-10 lg:h-12 bg-red-500 rounded-md font-medium lg:text-lg" onClick={() => setIsModalOpen(true)}>Create room</button>

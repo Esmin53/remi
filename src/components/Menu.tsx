@@ -34,21 +34,21 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                 </div>
             </div>
             <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col">
-                {menu === "rooms" ? <Rooms /> : null}
+                { menu === "rooms" ? <Rooms /> : null }
                 {/* CREATE SOLO GAME MODE */}
-                {menu === "solo-game" ? <h1>Solo Game will be implemented soon</h1> : null}
-                {menu === "edit-room" ?
+                { menu === "solo-game" ? <h1>Solo Game will be implemented soon</h1> : null }
+                { menu === "edit-room" ?
                     <RoomCreator 
                            roomKey={roomKey || null} 
                            currentBackground={currentBackground}
                            currentTable={currentTable}
                            currentDeck={currentDeck}
-                           allowRandom={allowRandom}/>
+                           allowRandom={allowRandom} />
                             : null  }
 
 
             </div>
-            <div className="w-full py-2 px-2 sm:px-6 lg:px-16 flex flex-col sm:flex-row  flex-wrap items-center bg-red-900/50 sticky bottom-0 z-50 space-y-4">
+            <div className="w-full py-2 px-2 sm:px-6 lg:px-16 flex flex-col sm:flex-row  flex-wrap items-center bg-red-900/50 z-50 space-y-4">
                 <div className="flex flex-col md:flex-row items-center md:gap-2 justify-center">
                     <Avatar currentAvatar={currentAvatar} />
                     <h2 className="text-lg md:text-2xl font-semibold">{currentUser}</h2>
