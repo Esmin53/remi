@@ -1,14 +1,10 @@
-import { AVATARS } from "@/lib/utils";
+import { AVATARS, BACKGROUNDS, DECKS, TABLES } from "@/lib/utils";
 import { HomeIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 
 const Page = () => {
-
-    const BACKGROUNDS = ["bg01.jpg", "bg02.jpg", "bg03.jpg", "bg04.jpg", "bg05.jpg", "bg06.jpg"];
-    const TABLES = ["red.jpg", "blue.jpg", "green.jpg", "purple.jpg", "dark_blue.jpg"]
-    const DECKS = ["white", "black"]
 
     return (
         <main className="flex-1 flex p-2 sm:p-4 relative flex-col gap-6 md:gap-8" style={{backgroundImage: `url(/table/dark_blue.jpg)`}}>
@@ -30,7 +26,7 @@ const Page = () => {
                 www.freepik.com</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 w-full gap-2 sm:gap-3 md:gap-4">
                     {TABLES?.map((item) => (
-                            <div className="relative flex-1 border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-video">
+                            <div key={item} className="relative flex-1 border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-video">
                                 <Image src={`/table/${item}`} fill alt="Table" loading="lazy" className="hover:scale-[1.05] duration-150 ease-in-out"/>
                             </div>
                     ))}
@@ -42,7 +38,7 @@ const Page = () => {
                 <p className="sm:text-lg md:text-xl font-medium pb-4">All assets used for backgrounds from <span className="font-bold">
                 www.freepik.com</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 w-full gap-2 sm:gap-3 md:gap-4">
-                    {BACKGROUNDS?.map((item) => <div className="relative w-full h-full border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-video">
+                    {BACKGROUNDS?.map((item) => <div key={item} className="relative w-full h-full border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-video">
                         <Image src={`/background/${item}`} fill alt="Background" loading="lazy"/>
                     </div>)}
                 </div>
@@ -54,7 +50,7 @@ const Page = () => {
                 href="https://mreliptik.itch.io/playing-cards-packs-52-cards" className="font-bold text-blue-500">
                 here.</a></p>
                 <div className="flex gap-2 sm:gap-3 md:gap-4">
-                    {DECKS?.map((item) => <div className="relative w-28 md:w-36 h-36 md:h-44 border-2 shadow border-gray-900 rounded-xl overflow-hidden">
+                    {DECKS?.map((item) => <div key={item} className="relative w-28 md:w-36 h-36 md:h-44 border-2 shadow border-gray-900 rounded-xl overflow-hidden">
                         <Image src={`/cards/${item}/Clovers_A.png`} fill alt="Background" loading="lazy"/>
                     </div>)}
                 </div>
@@ -65,7 +61,7 @@ const Page = () => {
                 <p className="sm:text-lg md:text-xl font-medium pb-4">All assets used for user avatars from <span className="font-bold">
                 www.freepik.com</span></p>
                 <div className="grid grid-cols-3 md:flex flex-wrap max-w-96 md:max-w-max w-full gap-1 sm:gap-3 md:gap-4">
-                    {AVATARS?.map((item) => <div className="relative w-full md:w-36 border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-square">
+                    {AVATARS?.map((item) => <div key={item} className="relative w-full md:w-36 border-2 shadow border-gray-900 rounded-md overflow-hidden aspect-square">
                         <Image src={`/avatar/${item}`} fill alt="Background" loading="lazy"/>
                     </div>)}
                 </div>
