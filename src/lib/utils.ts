@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const BACKGROUNDS = ["bg01.jpg", "bg02.jpg", "bg03.jpg", "bg04.jpg", "bg05.jpg", "bg06.jpg"];
+export const AVATARS = ["avatar01.jpg", "avatar02.jpg", "avatar03.jpg", "avatar04.jpg", "avatar05.jpg", "avatar06.jpg", "avatar07.jpg", "avatar08.jpg", "avatar09.jpg"];
+export const TABLES = ["red.jpg", "blue.jpg", "green.jpg", "purple.jpg", "dark_blue.jpg"]
+export const DECKS = ["white", "black"]
 
 export function shuffle() {
   const array: number[] = CARDS.map((item) => item.id);

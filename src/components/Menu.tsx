@@ -9,6 +9,7 @@ import Rooms from "./Rooms";
 import RoomCreator from "./RoomCreator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
  
 interface MenuProps {
     currentAvatar: string | null
@@ -72,7 +73,9 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                 <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow">
+                            <Link href={`/assets`}>
                             <LucideImage className="w-6 h-6"/>
+                            </Link>
                             </TooltipTrigger>
                             <TooltipContent>
                             <p>Assets</p>
