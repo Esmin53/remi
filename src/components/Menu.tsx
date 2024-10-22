@@ -4,13 +4,15 @@ import Image from "next/image";
 import Avatar from "./Avatar";
 import {  Code2, LogOut, LucideImage } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Rooms from "./Rooms";
 import RoomCreator from "./RoomCreator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
- 
+import { AnimatePresence, motion } from 'framer-motion'; 
+
+
 interface MenuProps {
     currentAvatar: string | null
     currentUser: string | null | undefined
@@ -24,8 +26,15 @@ interface MenuProps {
 const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTable, currentDeck, allowRandom}: MenuProps) => {
     const [menu, setMenu] = useState("rooms")
 
+    const variants = {
+        hidden: { x: '100%', opacity: 0 },
+        visible: { x: 0, opacity: 1 },
+        exit: { x: '-100%', opacity: 0 },
+      };
+
+
     return (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <div className="w-full h-16 px-6 lg:px-16 flex items-center justify-center pt-1">
                 <div className="relative h-full aspect-video">
                     <Image fill alt="Logo" src="/logo01.png"/>
@@ -35,20 +44,51 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                 </div>
             </div>
             <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col">
-                { menu === "rooms" ? <Rooms /> : null }
-                {/* CREATE SOLO GAME MODE */}
-                { menu === "solo-game" ? <h1>Solo Game will be implemented soon</h1> : null }
-                { menu === "edit-room" ?
-                    <RoomCreator 
-                           roomKey={roomKey || null} 
-                           currentBackground={currentBackground}
-                           currentTable={currentTable}
-                           currentDeck={currentDeck}
-                           allowRandom={allowRandom} />
-                            : null  }
-
-
-            </div>
+      <AnimatePresence mode="wait">
+        {menu === "rooms" && (
+          <motion.div
+            key="rooms"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={variants}
+            transition={{ duration: 0.35 }}
+          >
+            <Rooms />
+          </motion.div>
+        )}
+        {menu === "solo-game" && (
+          <motion.div
+            key="solo-game"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={variants}
+            transition={{ duration: 0.35 }}
+          >
+            <h1>Solo Game will be implemented soon</h1>
+          </motion.div>
+        )}
+        {menu === "edit-room" && (
+          <motion.div
+            key="edit-room"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={variants}
+            transition={{ duration: 0.35 }}
+          >
+            <RoomCreator
+              roomKey={roomKey || null}
+              currentBackground={currentBackground}
+              currentTable={currentTable}
+              currentDeck={currentDeck}
+              allowRandom={allowRandom}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
             <div className="w-full py-2 px-2 sm:px-6 lg:px-16 flex flex-col sm:flex-row  flex-wrap items-center bg-red-900/50 z-50 space-y-4">
                 <div className="flex flex-col md:flex-row items-center md:gap-2 justify-center">
                     <Avatar currentAvatar={currentAvatar} />

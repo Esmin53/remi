@@ -16,28 +16,28 @@ const DeckPreview = ({chosenDeck, deck}: DeckPreviewProps) => {
                 "border-gray-200": deck === "white",
                 "border-red-500": chosenDeck === deck,
             })}>
-                <Image fill alt="" src={`/cards/${deck}/Pikes_A.png`} loading="lazy"/>
+                <Image fill alt="" src={`/cards/${deck}/Pikes_A.png`} loading="lazy" sizes="(max-width: 640px) 60px, (min-width: 641px) 80px"/>
             </div>
             <div className={cn("-ml-6 w-[3.2rem] h-[4.5rem] sm:w-[4.2rem] sm:h-24 relative shadow cursor-pointer rounded-lg border-2 border-gray-700", {
                 "border-gray-700": deck === "black",
                 "border-gray-200": deck === "white",
                 "border-red-500": chosenDeck === deck,
             })}>
-                <Image fill alt="" src={`/cards/${deck}/Hearts_A.png`} loading="lazy"/>
+                <Image fill alt="" src={`/cards/${deck}/Hearts_A.png`} loading="lazy" sizes="(max-width: 640px) 60px, (min-width: 641px) 80px"/>
             </div>
             <div className={cn("-ml-6 w-[3.2rem] h-[4.5rem] sm:w-[4.2rem] sm:h-24 relative shadow cursor-pointer rounded-lg border-2 border-gray-700", {
                 "border-gray-700": deck === "black",
                 "border-gray-200": deck === "white",
                 "border-red-500": chosenDeck === deck,
             })}>
-                <Image fill alt="" src={`/cards/${deck}/Clovers_A.png`} loading="lazy"/>
+                <Image fill alt="" src={`/cards/${deck}/Clovers_A.png`} loading="lazy" sizes="(max-width: 640px) 60px, (min-width: 641px) 80px"/>
             </div>
             <div className={cn("-ml-6 w-[3.2rem] h-[4.5rem] sm:w-[4.2rem] sm:h-24 relative shadow cursor-pointer rounded-lg border-2 border-gray-700", {
                 "border-gray-700": deck === "black",
                 "border-gray-200": deck === "white",
                 "border-red-500": chosenDeck === deck,
             })}>
-                <Image fill alt="" src={`/cards/${deck}/Tiles_A.png`} loading="lazy"/>
+                <Image fill alt="" src={`/cards/${deck}/Tiles_A.png`} loading="lazy" sizes="(max-width: 640px) 60px, (min-width: 641px) 80px"/>
             </div>
         </div>
     )

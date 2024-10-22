@@ -7,6 +7,24 @@ import { eq } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server"
 
+export const GET = async (req: NextRequest, res: NextResponse) => {
+    try {
+        const url = new URL(req.url)
+        const { pathname } = url
+        const key = pathname.split("/")[3] as string
+
+        const [data] = await db.select({
+            background: rooms.background,
+            table: rooms.table,
+            deck: rooms.deck,
+            allowRandom: rooms.allowRandom
+        }).from(rooms).where(eq(rooms.key, key))
+
+        return new NextResponse(JSON.stringify(data), { status: 200 })
+    } catch (error) {
+        return new NextResponse(JSON.stringify({message: "Failed"}), { status: 500 })
+    }
+}
 
 export const DELETE = async (req: NextRequest, res: NextResponse) => {
     try {

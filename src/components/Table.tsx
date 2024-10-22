@@ -1,10 +1,5 @@
-import Image from "next/image"
-import CardBack from "./CardBack"
-import { useEffect, useState } from "react"
-import { CARDS, Card } from "@/lib/cards"
-import CardBundle from "./CardBundle"
-import { useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface TableProps {
     color?: string
@@ -18,8 +13,8 @@ const Table = ({color, className}: TableProps) => {
     return (
         <div className={cn("w-7/12 max-w-[850px] max-h-[600px] rounded-full relative overflow-hidden object-cover poker-table flex items-center justify-center gap-4 cursor-pointer", className, {
             "border-red-500 border-2": true
-        })} style={{backgroundImage: `url(/table/${bg})`}}>
-
+        })} >
+            <Image alt="Table pattern" fill src={`/table/${bg}`} className="-z-10" sizes="(max-width: 768px) 50vw, 100vw"/>
        </div>
     )
 }

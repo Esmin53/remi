@@ -1,35 +1,17 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, UserPlus2 } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { AVATARS, cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { Session } from "inspector";
 
 interface AvatarProps {
     currentAvatar: string | null
 }
 
 const Avatar = ({currentAvatar}: AvatarProps ) => {
-
-    const avatars = [
-        "avatar01.jpg",
-        "avatar02.jpg",
-        "avatar03.jpg",
-        "avatar04.jpg",
-        "avatar05.jpg",
-        "avatar06.jpg",
-        "avatar07.jpg",
-        "avatar08.jpg",
-        "avatar09.jpg",
-    ]
 
     const {data: session, update} = useSession()
 
@@ -77,12 +59,23 @@ const Avatar = ({currentAvatar}: AvatarProps ) => {
         }
     }
 
-
     const handleClickOutside = (event: MouseEvent) => {
         if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
             setIsModalOpen(false); 
         }
     };
+
+    const memoizedAvatars = useMemo(() => (AVATARS.map((item) => (
+        <div
+            className={cn("w-full h-full relative rounded-sm overflow-hidden shadow-sm cursor-pointer", {
+                "border border-red-500": avatar === item,
+            })}
+            key={item}
+            onClick={() => (avatar === item ? setAvatar(null) : setAvatar(item))}
+        >
+            <Image fill alt="Avatar" src={`/avatar/${item}`} className="object-cover object-center" sizes="(max-width: 768px) 10vw, 15vw" />
+        </div>
+    ))), [avatar])
 
     useEffect(() => {
         if (isModalOpen) {
@@ -117,17 +110,7 @@ const Avatar = ({currentAvatar}: AvatarProps ) => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex-1 grid grid-cols-3 gap-1">
-                            {avatars.map((item) => (
-                                <div
-                                    className={cn("w-full h-full relative rounded-sm overflow-hidden shadow-sm cursor-pointer", {
-                                        "border border-red-500": avatar === item,
-                                    })}
-                                    key={item}
-                                    onClick={() => (avatar === item ? setAvatar(null) : setAvatar(item))}
-                                >
-                                    <Image fill alt="Avatar" src={`/avatar/${item}`} className="object-cover object-center" />
-                                </div>
-                            ))}
+                            {memoizedAvatars}
                         </div>
 
                         <button

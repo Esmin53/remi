@@ -18,10 +18,10 @@ const Rooms = () => {
             <p className="text-base">Join a room and start playing now.</p>
             <div className="h-0.5 w-4/5 flex bg-lightblue rounded-lg my-2" />
           </div>
-        <div className="flex-1 gap-2 grid grid-cols-2 lg:grid-cols-3">
+        <div className="flex-1 gap-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <div className=" p-1 h-fit">
                     <div className="w-full aspect-video relative rounded-sm overflow-hidden flex items-center justify-center">
-                        <Image fill alt="" src={`/background/bg02.jpg`} />
+                        <Image fill alt="Table" src={`/background/bg02.jpg`} loading="lazy" sizes="(max-width: 634px) 100vw, 40vw" />
                         <Table  color="dark_blue.jpg" className="w-9/12">
 
                         </Table>
@@ -33,7 +33,7 @@ const Rooms = () => {
                 </div>
                 <div className=" p-1 h-fit">
                     <div className="w-full aspect-video relative rounded-sm overflow-hidden flex items-center justify-center">
-                        <Image fill alt="" src={`/background/bg03.jpg`} />
+                        <Image fill alt="" src={`/background/bg03.jpg`} loading="lazy" sizes="(max-width: 634px) 100vw, 40vw"/>
                         <Table  color="green.jpg" className="w-9/12" />
                     </div>
                     <div className="w-full flex items-center justify-between">
@@ -43,7 +43,7 @@ const Rooms = () => {
                 </div>
                 <div className=" p-1 h-fit">
                     <div className="w-full aspect-video relative rounded-sm overflow-hidden flex items-center justify-center">
-                        <Image fill alt="" src={`/background/bg04.jpg`} />
+                        <Image fill alt="" src={`/background/bg04.jpg`} loading="lazy" sizes="(max-width: 634px) 100vw, 40vw"/>
                         <Table  color="purple.jpg" className="w-9/12" />
                     </div>
                     <div className="w-full flex items-center justify-between">
