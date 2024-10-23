@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Table from "./Table";
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Carousel,
     CarouselContent,
@@ -14,13 +14,8 @@ import { Circle, CircleCheck, Loader2, X } from "lucide-react";
 import DeckPreview from "./DeckPreview";
 import { Switch } from "./ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import NewRoomForm from "./NewRoomForm";
-import { cn } from "@/lib/utils";
-
-const BACKGROUNDS = ["bg01.jpg", "bg02.jpg", "bg03.jpg", "bg04.jpg", "bg05.jpg", "bg06.jpg"];
-const TABLES = ["red.jpg", "blue.jpg", "green.jpg", "purple.jpg", "dark_blue.jpg"]
-const DECKS = ["white", "black"]
+import { BACKGROUNDS, DECKS, TABLES } from "@/lib/utils";
 
 interface RoomCreatorProps {
     roomKey: string | null,

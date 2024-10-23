@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { AnimatePresence, motion } from 'framer-motion'; 
+import HowToPlay from "./HowToPlay";
 
 
 interface MenuProps {
@@ -39,8 +40,8 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                 <div className="relative h-full aspect-video">
                     <Image fill alt="Logo" src="/logo01.png"/>
                 </div>
-                <div className="cursor-pointer ml-auto">
-                    <span className="text-4xl font-bold">?</span>
+                <div className="ml-auto">
+                    <HowToPlay />
                 </div>
             </div>
             <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col">

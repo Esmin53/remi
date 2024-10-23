@@ -1,3 +1,4 @@
+import HowToPlay from "@/components/HowToPlay";
 import RoomProvider from "@/components/RoomProvider";
 import { rooms } from "@/db/schema";
 import { db } from "@/lib/db";

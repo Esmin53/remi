@@ -3,6 +3,7 @@
 import CardBack from "@/components/CardBack"
 import CardBundle from "@/components/CardBundle"
 import CardFront from "@/components/CardFront"
+import HowToPlay from "@/components/HowToPlay"
 import LoadingHand from "@/components/LoadingHand"
 import MeldArea from "@/components/MeldArea"
 import MyHand from "@/components/MyHand"
@@ -530,8 +531,8 @@ const Page = () => {
 
     if(roomData.gameStatus !== 'IN_PROGRESS') {
         return <div className="flex-1 flex gap-2 bg-cover" >
-                <div className="flex-1 flex items-center justify-center">
-       <div className="w-8/12 sm:w-9/12 max-w-[850px] max-h-[600px] relative">
+        <div className="flex-1 flex items-center justify-center">
+            <div className="w-8/12 sm:w-9/12 max-w-[850px] max-h-[600px] relative">
             <TableOptions table={table}>
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-6 text-center">
                 {roomData.winner && (
