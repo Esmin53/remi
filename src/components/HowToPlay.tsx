@@ -26,7 +26,7 @@ const HowToPlay = () => {
                             <div className="h-0.5 w-5/6  flex bg-lightblue rounded-lg my-2" />
                             <p className="font-medium text-start w-full px-2 text-sm lg:text-base">
                                 In order to play online you have to find and join a room with other players.
-                                You can find available rooms by clickng find room in navigation, there you can find available rooms that are not full or there isn't a game in progress.
+                                You can find available rooms by clickng find room in navigation, there you can find available rooms that are not full or there isn&apos;t a game in progress.
                                 If you want to join a speciffic room you must have the room key.
                             </p>
                         </div>
@@ -77,7 +77,7 @@ const HowToPlay = () => {
                             Melding and adding to melds
                         </h2>
                         <p>If you have the right cards, select atleast 3 of them and click on the meld button. 1 or 2 melds will be displayed on the table per player, click on the 
-                            meld to view the rest. To add to meld select one card then click on the meld you want to add. You can't add a card to meld if its the last card in your hand.
+                            meld to view the rest. To add to meld select one card then click on the meld you want to add. You can&apos;t add a card to meld if its the last card in your hand.
                         </p>
                     </div>
                     <div className="w-full flex flex-col pb-4 md:pb-10"> 
