@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { AnimatePresence, motion } from 'framer-motion'; 
 import HowToPlay from "./HowToPlay";
+import RummyRules from "./Rules";
 
 
 interface MenuProps {
@@ -25,7 +26,7 @@ interface MenuProps {
 }
 
 const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTable, currentDeck, allowRandom}: MenuProps) => {
-    const [menu, setMenu] = useState("rooms")
+    const [menu, setMenu] = useState<"rooms" | "edit-room" | "rules">("rooms")
 
     const variants = {
         hidden: { x: '100%', opacity: 0 },
@@ -35,7 +36,7 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
 
 
     return (
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden h-screen">
             <div className="w-full h-16 px-6 lg:px-16 flex items-center justify-center pt-1">
                 <div className="relative h-full aspect-video">
                     <Image fill alt="Logo" src="/logo01.png"/>
@@ -44,7 +45,7 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                     <HowToPlay />
                 </div>
             </div>
-            <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col">
+            <div className="flex-1 px-6 xl:px-16 py-2 flex flex-col overflow-y-auto no-scrollbar">
       <AnimatePresence mode="wait">
         {menu === "rooms" && (
           <motion.div
@@ -58,16 +59,17 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
             <Rooms />
           </motion.div>
         )}
-        {menu === "solo-game" && (
+        {menu === "rules" && (
           <motion.div
-            key="solo-game"
+            key="rules"
             initial="hidden"
             animate="visible"
             exit="exit"
             variants={variants}
             transition={{ duration: 0.35 }}
+            className="flex-1 flex"
           >
-            <h1>Solo Game will be implemented soon</h1>
+            <RummyRules />
           </motion.div>
         )}
         {menu === "edit-room" && (
@@ -106,11 +108,11 @@ const Menu = ({currentAvatar, currentUser, roomKey, currentBackground, currentTa
                     }) } onClick={() => setMenu("edit-room")}>My Room</li>
                     <div className="h-full mx-6 min-h-[1em] w-px self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
                     <li className={cn("cursor-pointer duration-100", {
-                        "-translate-y-3 text-lg md:text-xl lg:text-2xl font-bold duration-100": menu === "solo-game"
-                    }) } onClick={() => setMenu("solo-game")}>Solo game</li>
+                        "-translate-y-3 text-lg md:text-xl lg:text-2xl font-bold duration-100": menu === "rules"
+                    }) } onClick={() => setMenu("rules")}>Rules</li>
                     <div className="h-full mx-6 min-h-[1em] w-px self-stretch bg-gradient-to-tr my-auto from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
                 </ul>
-                <div className="ml-auto flex items-center gap-2 md:gap-4" >
+                <div className="ml-auto flex items-center gap-2 md:gap-4">
                 <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger className="rounded-full bg-gray-900/40 w-10 h-10 flex items-center justify-center shadow">
