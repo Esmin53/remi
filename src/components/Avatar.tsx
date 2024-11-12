@@ -91,7 +91,7 @@ const Avatar = ({currentAvatar}: AvatarProps ) => {
     return (
         <div className="">
             <div
-                className="cursor-pointer w-16 h-16 md:w-24 md:h-24 rounded-full bg-paleblue border-2 border-lightblue flex items-center justify-center relative overflow-hidden"
+                className="cursor-pointer w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-paleblue border-2 border-lightblue flex items-center justify-center relative overflow-hidden"
                 onClick={() => setIsModalOpen(true)}
             >
                 <UserPlus2 className="text-lightblue w-10 h-10 md:w-14 md:h-14 lg:w-20 lg:h-20" />

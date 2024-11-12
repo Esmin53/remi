@@ -6,7 +6,7 @@ const Rooms = () => {
 
     return (
         <div className="flex-1 flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-80 lg:w-1/3 lg:min-w-96 max-w-xl h-fit flex flex-col justify-center  md:sticky md:top-32 lg:top-36">
+            <div className="w-full md:w-80 lg:w-1/3 lg:min-w-96 max-w-xl h-fit flex flex-col md:sticky md:top-12">
                 <h1 className="text-2xl lg:text-3xl font-semibold">Join your friends.</h1>
                 <p className="text-base">Enter a room key and join a room.</p>
                 <div className="h-0.5 w-4/5 flex bg-lightblue rounded-lg my-2" />

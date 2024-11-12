@@ -35,7 +35,7 @@ export default async function Home() {
   }
 
   if(true) {
-    return <main className="flex-1 flex justify-center relative max-h-screen" style={{backgroundImage: `url(/table/red.jpg)`}}>
+    return <main className="flex-1 flex justify-center relative no-scrollbar" style={{backgroundImage: `url(/table/red.jpg)`}}>
         <Menu currentAvatar={avatar} currentUser={session.user.name}
                    roomKey={ownedRoom || null} 
                    currentBackground={background}
