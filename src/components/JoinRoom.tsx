@@ -72,7 +72,7 @@ const JoinRoom = () => {
     
 
     return (
-        <div className="w-full max-w-2xl bg-[#4d4d4d]/50 flex flex-col items-center justify-center p-2 gap-2 border-2 rounded-lg border-gray-700 shadow">
+        <div className="w-full bg-[#4d4d4d]/50 flex flex-col items-center justify-center p-2 gap-2 border-2 rounded-lg border-gray-700 shadow">
             <form className="w-full flex gap-2" onSubmit={handleSubmit(onSubmit)}>
             <input className={cn("w-full h-10 px-2 rounded-sm bg-paleblue border-none outline-none text-gray-900 shadow-sm", {
                 "border border-red-400": errors.key
