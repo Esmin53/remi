@@ -132,12 +132,7 @@ const Rooms = () => {
             </div>
             <div className="h-0.5 w-4/5 flex bg-lightblue rounded-lg my-2" />
             {!isLoading && rooms.length !== 0 ? <div className="flex-1 gap-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 relative">
-                {isJoining ? <div className="w-full flex items-center justify-center h-28 py-20 animate-pulse">
-                    <div className="">
-                        <h1 className="text-3xl font-semibold">Joining a room.</h1>
-                        <p className="text-base">Please wait while we check for game in progress...</p>
-                    </div>
-                </div> : rooms.map(({key, background, table}) => (
+                {!isJoining ?  rooms.map(({key, background, table}) => (
                         <div className=" p-1 h-fit" key={key}>
                         <div className="w-full aspect-video relative rounded-sm overflow-hidden flex items-center justify-center">
                             <Image fill alt="Table" src={`/background/${background}`} loading="lazy" sizes="(max-width: 634px) 100vw, 40vw" />
@@ -158,10 +153,14 @@ const Rooms = () => {
                             </form>
                         </div>
                     </div>
-                ))}
+                )) : null}
             </div> : null}
             {isLoading && rooms.length === 0 ? <div className="w-full h-full flex items-center justify-center flex-col gap-3">
                 <h2 className="text-2xl font-medium">Finding rooms</h2>
+                <Loader2 className="animate-spin w-12 h-12" />
+            </div> : null} 
+            {isJoining ? <div className="w-full h-full flex items-center justify-center flex-col gap-3">
+                <h2 className="text-2xl font-medium">Joining room</h2>
                 <Loader2 className="animate-spin w-12 h-12" />
             </div> : null} 
             {!isLoading && rooms.length === 0 ? <div className="w-full h-full flex items-center justify-center flex-col gap-3">

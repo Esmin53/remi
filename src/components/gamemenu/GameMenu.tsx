@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import OwnerOptions from "./OwnerOptions";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
+import { useRoomData } from "../RoomProvider";
 
 
 interface GameMenuProps {
@@ -24,6 +25,8 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
     const session = useSession()
     const router = useRouter()
     const { toast } = useToast()
+
+    const { table } = useRoomData();
 
     const leaveTable = async () => {
         try {
@@ -53,27 +56,28 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
             <div className="absolute top-1.5 sm:top-4 right-1.5 sm:right-4 w-7 h-7 sm:w-10 sm:h-10 bg-lightblue/70 cursor-pointer z-30 flex items-center justify-center rounded-full">
                 <ChevronLeft className="w-6 sm:w-8 h-6 sm:h-8" onClick={() => setHideMenu(false)}/>
             </div>
-            <div className={cn("h-full z-40 w-screen max-w-80 lg:max-w-96 xl:w-96 absolute right-0 top-0 xl:relative bg-[#486581] min-h-screen max-h-screen overflow-y-auto ml-auto border-l border-lightblue shadow-sm p-2 flex flex-col gap-4", {
+            <div className={cn("h-full z-40 w-screen max-w-80 lg:max-w-96 xl:w-96 absolute right-0 top-0 xl:relative bg-red-400 min-h-screen max-h-screen overflow-y-auto ml-auto border-l border-lightblue shadow-sm p-2 flex flex-col gap-4", {
            "hidden": hideMenu 
         })}>
+            
             <div className="absolute top-4 left-4 w-9 sm:w-10 h-9 sm:h-10 bg-lightblue cursor-pointer z-30 flex items-center justify-center rounded-full">
                 <ChevronRight className="w-7 h-7 sm:w-8 sm:h-8" onClick={() => setHideMenu(true)}/>
             </div>
-            <div className="w-full flex flex-col justify-center items-center">
-                <div className="w-24 h-24 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded sm:rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative overflow-hidden">
+            <div className="w-full flex flex-col justify-center items-center z-10">
+                <div className="z-10 w-24 h-24 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded sm:rounded-md bg-paleblue border-2 shadow-sm border-lightblue relative overflow-hidden">
                     {session.data?.user?.image ? <Image fill alt="User avatar" src={`/avatar/${session.data.user.image}`} className="object-cover z-30" /> : null}
                     <User2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lightblue w-28 h-28" />
                 </div>
                 <h2 className="sm:text-xl lg:text-2xl font-bold">{session.data?.user?.name}</h2>
             </div>
             <Players owner={owner} currentTurn={currentTurn} gameId={gameId} gameStatus={gameStatus}/>
-            <div className="flex flex-col w-full">
-                <h1 className="text-lg sm:text-2xl font-medium -translate-y-0.5">
+            <div className="flex flex-col w-full z-10">
+                <h1 className="text-lg sm:text-2xl font-medium -translate-y-0.5 z-10">
                     {gameStatus === "IN_PROGRESS" ? "Game is in progress." : null}
                     {gameStatus === "INTERRUPTED" ? "Last game was interrupted!" : null}
                 </h1>
-                <div className="h-0.5 w-3/5 bg-lightblue rounded-lg" />
-                <p className="font-medium translate-y-0.5">
+                <div className="h-0.5 w-3/5 bg-lightblue rounded-lg z-10" />
+                <p className="font-medium translate-y-0.5 z-10">
                     {gameStatus === "IN_PROGRESS" ? `${currentTurn === session.data?.user?.name ? "Your" : `${currentTurn}'s`} turn.` : null}
                     {gameStatus === "INTERRUPTED" || gameStatus === "FINISHED" ? "Waiting for table owner to start a new game!" : null}
                 </p>
@@ -99,6 +103,7 @@ const GameMenu = ({ owner, currentTurn, gameId, gameStatus }: GameMenuProps) => 
                         </AlertDialogContent>
                     </AlertDialog>
             </div>
+            <Image fill alt="" src={`/table/${table}`} className="object-cover -z-10"/>
         </div>
         </div>
     )

@@ -26,7 +26,7 @@ export default function RootLayout({
 			  <link rel='icon' href='/icon.ico' />
       </head>
       <body className={inter.className}>
-        <div className="flex flex-col min-h-screen w-full bg-primaryblue text-white">
+        <div className="flex flex-col min-h-screen w-full bg-[#821c2b] text-white">
           <Providers>
             {children}
           </Providers>

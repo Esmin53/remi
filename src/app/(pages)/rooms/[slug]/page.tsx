@@ -33,7 +33,7 @@ type GroupedMelds = {
 
 const Page = () => {
 
-    const {background, table, deck, owner} = useRoomData();
+    const { table, deck, owner} = useRoomData();
 
 
     const session = useSession()
@@ -675,6 +675,7 @@ const Page = () => {
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => drawCard("top_of_the_deck")}>Draw</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => discardCard()}>Discard</p>
                     <p className="text-paleblue sm:font-medium text-xs sm:text-lg cursor-pointer" onClick={() => meldCards()}>Meld</p>
+                    <Image fill alt="Table pattern" src={`/table/${table}`} className="object-cover -z-10"/>
                 </div>
             </div>
             {cards.length ? <div className="fixed bottom-36 md:bottom-40 line-clamp-1 text-black font-semibold right-2 z-50 w-8 h-8 md:h-10 md:w-10 rounded-full 

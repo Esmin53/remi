@@ -81,7 +81,7 @@ const OwnerOptions = ({gameId, gameStatus}: OwnerOptionsProps) => {
                   </AlertDialog>
                     <AlertDialog>
                     <AlertDialogTrigger asChild>
-                    <p className="ml-2 cursor-pointer sm:font-medium text-sm sm:text-basem" >End game</p>
+                    <p className="ml-2 cursor-pointer sm:font-medium text-sm sm:text-base" >End game</p>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
