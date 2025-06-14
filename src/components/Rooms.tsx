@@ -29,6 +29,7 @@ const Rooms = () => {
     const router = useRouter()
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
+    const [isJoining, setIsJoining] = useState(false)
 
     const getRooms = async () => {
         if(isLoading) return
@@ -59,7 +60,7 @@ const Rooms = () => {
 
 
     const onSubmit: SubmitHandler<TJoinRoomValidator> = async ({ key }) => {
-        setIsLoading(true)
+        setIsJoining(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/room/${key}/players`, {
                 method: 'PUT',
@@ -91,12 +92,12 @@ const Rooms = () => {
             if(data.key) {
                 router.push(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${data.key}`)
                 router.refresh()
+            } else {
+                setIsJoining(false)
             }
 
-            setIsLoading(false)
-
         } catch (error) {
-            setIsLoading(false)
+            setIsJoining(false)
             toast({
                 title: "Something went wrong!",
                 description: "There was an error joining this room, please try again later.",
@@ -130,8 +131,13 @@ const Rooms = () => {
                 </button>
             </div>
             <div className="h-0.5 w-4/5 flex bg-lightblue rounded-lg my-2" />
-            {!isLoading && rooms.length !== 0 ? <div className="flex-1 gap-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                {rooms.map(({key, background, table}) => (
+            {!isLoading && rooms.length !== 0 ? <div className="flex-1 gap-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 relative">
+                {isJoining ? <div className="w-full flex items-center justify-center h-28 py-20 animate-pulse">
+                    <div className="">
+                        <h1 className="text-3xl font-semibold">Joining a room.</h1>
+                        <p className="text-base">Please wait while we check for game in progress...</p>
+                    </div>
+                </div> : rooms.map(({key, background, table}) => (
                         <div className=" p-1 h-fit" key={key}>
                         <div className="w-full aspect-video relative rounded-sm overflow-hidden flex items-center justify-center">
                             <Image fill alt="Table" src={`/background/${background}`} loading="lazy" sizes="(max-width: 634px) 100vw, 40vw" />
@@ -142,6 +148,7 @@ const Rooms = () => {
                         <div className="w-full flex items-center justify-between">
                             <h2 className="text-lg font-medium p-2">{key}</h2>
                             <form onSubmit={(e) => { 
+                            setIsJoining(true)
                             e.preventDefault(); 
                             onSubmit({ key }); 
                         }}>
